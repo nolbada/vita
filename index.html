@@ -120,7 +120,7 @@ function render(){
   var d=new Date();
   $('dt').textContent=(d.getMonth()+1)+'/'+d.getDate()+'('+DAY[d.getDay()]+')';
   $('hi').textContent=me+'님';
-  var have=KEYS.filter(function(k){return info(k).m.length>0});
+  var have=KEYS.filter(function(k){return info(k).m.length>0&&(k!=='mkp'||(D.mkp&&D.mkp.on===true))});
   if(!have.length){$('tabs').innerHTML='';$('cards').innerHTML='<div class="card"><div class="sub">지정된 학습이 없습니다</div></div>';return}
   if(!CUR||have.indexOf(CUR)<0){var w=new Date().getDay(),dk=w===5?'fri':(w===6?'mkp':'reg');CUR=have.indexOf(dk)>-1?dk:have[0]}
   $('tabs').innerHTML=have.map(function(k){return '<button data-t="'+k+'"'+(k===CUR?' class="on"':'')+'>'+TS[k]+'</button>'}).join('');
