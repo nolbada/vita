@@ -110,6 +110,7 @@ function V(id,n,t,u,nx){var o={id:id,n:n,t:t};if(u)o.u=B+u;if(nx)o.next=nx;retur
 var C={cat:[
 {g:'비단챌 제출',items:[V('bd-gibon','비단챌 제출','기본','bidanchael/gibon/'),V('bd-baljeon','비단챌 제출','발전','bidanchael/baljeon/'),V('bd-simhwa','비단챌 제출','심화','bidanchael/simhwa/'),V('bd-gogyo','비단챌 제출','고교','bidanchael/gogyo/')]},
 {g:'단어시험',items:[V('w-test','단어시험','클래스카드 단어TEST')]},
+{g:'단어책',items:[V('vb-1','단어책','기본','','vb-2'),V('vb-2','단어책','발전','','vb-3'),V('vb-3','단어책','심화','','vb-4'),V('vb-4','단어책','고교','','vb-5'),V('vb-5','단어책','워마 2000','wama2000/'),V('vb-sh','단어책','보카스위치 고교','switch-mission-h.html'),V('vb-ss','단어책','보카스위치 수능','switch-mission-s.html'),V('vb-vl','단어책','보카링크','vocalink/'),V('vb-dc','단어책','더블보카 코어','dvcore/'),V('vb-dp','단어책','더블보카 프로','dvpro/')]},
 {g:'비단챌 말하기 시험',items:[V('sp-test','비단챌 말하기 시험','3문장 해석 TEST')]},
 {g:'V시그널',items:[V('vs-k','V시그널','K','vsignal-k/','vs-e'),V('vs-e','V시그널','E','vsignal-e/','vs-y'),V('vs-y','V시그널','Y','vsignal-y/'),V('vs-x','V시그널','X-ray','xray/')]},
 {g:'개별 독해책',items:RD},
@@ -118,7 +119,7 @@ var C={cat:[
 {g:'클카 오늘의 단어',items:[V('sw-test','클카 오늘의 단어','오늘 단어 TEST 틀린 것 예문 영어+해석 쓰기')]},
 {g:'대화문',items:[V('dl-m1','대화문','중1','gichul/m1/'),V('dl-m2','대화문','중2','gichul/m2/')]},
 {g:'문법',items:[V('gr-gi1','문법','그래머인사이드 L1','grammar-inside/l1/'),V('gr-l2sb','문법','Link2(교재)','link2-sb/'),V('gr-l2wb','문법','Link2(WB)','link2-wb/'),V('gr-bp2','문법','바푸문 2','bapumun2/'),V('gr-bp3','문법','바푸문 3','bapumun3/')]}
-],chips:[['전체',null],['숙제·제출',['비단챌 제출','단어시험','비단챌 말하기 시험']],['구문',['V시그널']],['독해',['개별 독해책','클카 독해TEST','M1 리딩']],['문법',['문법']],['기타',['클카 오늘의 단어','대화문']]],
+],chips:[['전체',null],['숙제·제출',['비단챌 제출','단어시험','비단챌 말하기 시험']],['단어',['단어책']],['구문',['V시그널']],['독해',['개별 독해책','클카 독해TEST','M1 리딩']],['문법',['문법']],['기타',['클카 오늘의 단어','대화문']]],
 base:['비단챌 제출','단어시험','비단챌 말하기 시험','V시그널','개별 독해책','클카 독해TEST','M1 리딩','클카 오늘의 단어','대화문']};
 var $=function(i){return document.getElementById(i)};
 var TABS=[['reg','주중 (Day 1 · Day 2)'],['fri','Friday'],['mkp','Saturday']];
