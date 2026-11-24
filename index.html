@@ -101,9 +101,9 @@ var app=initializeApp({apiKey:"AIzaSyC88G-OjMJOqVqnIVqunzh7fvk91wtKKnA",authDoma
 var auth=getAuth(app),db=getFirestore(app);
 var $=function(i){return document.getElementById(i)};
 var DAY=['일','월','화','수','목','금','토'];
-var PAD='#vt',KEYS=['reg','fri','mkp'],TN={reg:'주중 1회 학습',reg2:'주중 2회 학습',fri:'금요일 학습',mkp:'토요일 보충학습'},TABS=['reg','reg2','fri','mkp'];
+var PAD='#vt',KEYS=['reg','fri','mkp'],TN={reg:'Day 1',reg2:'Day 2',fri:'Friday',mkp:'Saturday'},TABS=['reg','reg2','fri','mkp'];
 var BAD=['1234','0000','1111','2222','3333','4444','5555','6666','7777','8888','9999','12345','123456'];
-var CUR='',TS={reg:'주중 1',reg2:'주중 2',fri:'금요일',mkp:'토요일'};
+var CUR='',TS={reg:'Day 1',reg2:'Day 2',fri:'Friday',mkp:'Saturday'};
 var D={},me='',uid='',nameNow='',initial=false,busy=false;
 function em(n){return 'n'+Array.from(new TextEncoder().encode(n)).map(function(b){return b.toString(16).padStart(2,'0')}).join('')+'@vita.local'}
 function show(id){['login','chg','home'].forEach(function(s){$(s).classList.toggle('hide',s!==id)});window.scrollTo(0,0)}
