@@ -37,6 +37,8 @@ td.r{font-size:12px;color:var(--sub)}td.r.ok{color:var(--ok)}td.r.ng{color:var(-
     <button id="sd" class="g">선택한 학생에 샘플 지정 넣기</button>
     <select id="bk" style="font:inherit;font-size:14px;padding:8px;border-radius:10px;border:1px solid #ccc"></select>
     <button id="bs">선택한 학생에 이 독해책 지정</button>
+    <button id="sat" class="g">선택한 학생 토요일 지정</button>
+    <button id="sat0" class="g">토요일 해제</button>
     <button id="al" class="g">전체 선택</button>
     <button id="no" class="g">선택 해제</button>
   </div>
@@ -133,6 +135,20 @@ $('bs').onclick=async function(){
   }
   $('bs').disabled=false;
 };
+async function satSet(on){
+  var p=picked();if(!p.length)return;
+  for(var i=0;i<p.length;i++){
+    try{
+      var r=doc(db,'vday',p[i].id,'days','mkp'),sn=await getDoc(r);
+      if(!sn.exists()){RES[p[i].id]='토요일 목록이 아직 없음';draw();continue}
+      await setDoc(r,{on:on},{merge:true});
+      RES[p[i].id]=on?'토요일 지정':'토요일 해제';
+    }catch(e){RES[p[i].id]='실패: 토요일 저장'}
+    draw();
+  }
+}
+$('sat').onclick=function(){satSet(true)};
+$('sat0').onclick=function(){satSet(false)};
 getRedirectResult(auth).catch(function(){});
 onAuthStateChanged(auth,async function(u){
   if(!u)return;
