@@ -6,7 +6,7 @@
   var cs=D.currentScript,APP=(cs&&cs.getAttribute('data-app'))||'';if(!APP)return;
   var ss;try{ss=W.sessionStorage;ss.getItem('x')}catch(e){return}
   var q=new URLSearchParams(location.search),vd=q.get('vd'),vi=q.get('vi');
-  if(vd!==null&&vi!==null&&/^(reg|fri|mkp)$/.test(vd)&&/^\d{1,2}$/.test(vi)){
+  if(vd!==null&&vi!==null&&/^(reg|reg2|fri|mkp)$/.test(vd)&&/^\d{1,2}$/.test(vi)){
     try{ss.setItem('vita-mk',JSON.stringify({k:vd,i:+vi,a:APP}))}catch(e){}
     try{q.delete('vd');q.delete('vi');var qs=q.toString();history.replaceState(null,'',location.pathname+(qs?'?'+qs:'')+location.hash)}catch(e){}
   }
@@ -28,8 +28,8 @@
   function write(n){
     return init().then(function(c){
       var u=c.auth.currentUser;if(!u)return;
-      var now=Date.now(),up={t:now};up['done.'+mk.i]=now;
-      return c.F.updateDoc(c.F.doc(c.db,'vday',u.uid,'days',mk.k),up);
+      var now=Date.now(),up={t:now},dkk=mk.k==='reg2'?'reg':mk.k;up['done.'+(mk.i+(mk.k==='reg2'?100:0))]=now;
+      return c.F.updateDoc(c.F.doc(c.db,'vday',u.uid,'days',dkk),up);
     }).catch(function(){fb=null;if(n<2)return new Promise(function(r){setTimeout(r,3000)}).then(function(){return write(n+1)})});
   }
   function done(app,o){
