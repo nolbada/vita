@@ -42,6 +42,9 @@ select,input{font:inherit;color:var(--ink)}
 .tt b{font-size:17px;font-weight:600}
 .tt .s{font-size:14px;color:var(--sub)}
 .tt .need{font-size:13px;font-weight:700;color:var(--amber);background:var(--amberbg);border-radius:8px;padding:3px 8px}
+.tg{display:flex;gap:6px;flex-wrap:wrap}
+.tg button{height:38px;padding:0 14px;border-radius:10px;background:var(--chip);color:#4a5468;font-size:15px;font-weight:700}
+.tg button.on{background:var(--main);color:#fff}
 .tt select{height:38px;max-width:260px;border:1.5px solid #cbd2de;border-radius:10px;padding:0 8px;background:#fff;font-size:15px}
 .ib{width:40px;height:40px;border-radius:10px;background:var(--chip);display:flex;align-items:center;justify-content:center;flex:none}
 .ib.x{background:var(--warnbg);color:var(--warn)}
@@ -190,8 +193,12 @@ function drawList(){
     var g=it.g&&GRP[it.g]&&GRP[it.g].items.length>1?GRP[it.g]:null;
     var mid;
     if(g){
-      var o='<option value="">선택</option>'+g.items.map(function(v){return '<option value="'+v.id+'"'+(v.id===it.c?' selected':'')+'>'+esc(v.t)+'</option>'}).join('');
-      mid='<b>'+esc(it.n)+'</b><select data-i="'+i+'" class="vs">'+o+'</select>'+(it.c?'':'<span class="need">지정 필요</span>');
+      if(g.items.length<=6){
+        mid='<b>'+esc(it.n)+'</b><span class="tg">'+g.items.map(function(v){return '<button data-a="pk" data-i="'+i+'" data-v="'+v.id+'" class="'+(v.id===it.c?'on':'')+'">'+esc(v.t)+'</button>'}).join('')+'</span>'+(it.c?'':'<span class="need">단계 선택</span>');
+      }else{
+        var o='<option value="">선택</option>'+g.items.map(function(v){return '<option value="'+v.id+'"'+(v.id===it.c?' selected':'')+'>'+esc(v.t)+'</option>'}).join('');
+        mid='<b>'+esc(it.n)+'</b><select data-i="'+i+'" class="vs">'+o+'</select>'+(it.c?'':'<span class="need">단계 선택</span>');
+      }
     }else mid='<b>'+esc(it.n)+'</b><span class="s">'+esc(it.t)+'</span>';
     var nx=it.c&&BYID[it.c]&&BYID[it.c].next?'<button class="nx" data-i="'+i+'" data-a="nx">다음으로 · '+esc(BYID[BYID[it.c].next].t)+'</button>':'';
     h+='<div class="row"><span class="no">'+(i+1)+'</span><div class="tt">'+mid+'</div>'+nx+
@@ -207,6 +214,7 @@ function drawPantry(){
   C.cat.forEach(function(g){
     var ch=C.chips.filter(function(c){return c[0]===CHIP})[0];
     if(CHIP!=='전체'&&!(ch&&ch[1]&&ch[1].indexOf(g.g)>-1))return;
+    if(g.items.length>1){h+='<div class="pi"><div><b>'+esc(g.g)+'</b><small>단계 '+g.items.length+'개 중 선택</small></div><button class="add" data-g="'+esc(g.g)+'"'+(cur()?'':' disabled')+'>담기</button></div>';return}
     g.items.forEach(function(v){
       n++;
       h+='<div class="pi"><div><b>'+esc(v.n)+'</b><small>'+esc(v.t)+'</small></div><button class="add" data-id="'+v.id+'"'+(cur()?'':' disabled')+'>담기</button></div>';
@@ -236,6 +244,8 @@ $('tb').onclick=function(e){var b=e.target.closest('button');if(!b)return;TAB=b.
 $('cc').onclick=function(e){var b=e.target.closest('button');if(!b)return;CHIP=b.getAttribute('data-c');drawPantry()};
 $('pn').onclick=function(e){
   var b=e.target.closest('.add');if(!b||!cur())return;
+  var gn=b.getAttribute('data-g');
+  if(gn){forTargets(function(T){T.items.push({n:gn,t:'',u:'',c:'',g:gn,o:-1})});return}
   var v=BYID[b.getAttribute('data-id')];
   forTargets(function(T){T.items.push(mkItem(v))});
 };
@@ -260,6 +270,7 @@ $('ls').onclick=function(e){
   if(a==='up'&&i>0){var x=T.items[i];T.items[i]=T.items[i-1];T.items[i-1]=x}
   else if(a==='dn'&&i<T.items.length-1){var y=T.items[i];T.items[i]=T.items[i+1];T.items[i+1]=y}
   else if(a==='del'){T.items.splice(i,1)}
+  else if(a==='pk'){var pv=BYID[b.getAttribute('data-v')];if(pv)T.items[i]=mkItem(pv)}
   else if(a==='nx'){var it=T.items[i],nv=BYID[BYID[it.c].next];T.items[i]=mkItem(nv)}
   else return;
   DATA[s.id].dirty[TAB]=true;BASECONF=false;MSG='';drawAll();
