@@ -48,6 +48,7 @@ input:focus{outline:2px solid var(--main);border-color:transparent}
 .week .ok b{background:var(--main);border-color:var(--main)}
 .week .today b{border-color:var(--main)}
 .foot{margin-top:28px}
+.rf{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:8px;color:var(--ink);text-decoration:none}.rf b{display:block;font-size:15px}.rf small{display:block;font-size:13px;color:var(--sub);margin-top:2px}.rf i{margin-left:auto;font-style:normal;color:var(--sub);font-size:22px}
 </style>
 </head>
 <body>
@@ -112,7 +113,7 @@ function esc(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){retur
 async function load(){
   D={};
   var snap=await getDocs(collection(db,'vday',uid,'days'));
-  snap.forEach(function(d){if(KEYS.indexOf(d.id)>-1)D[d.id]=d.data()});
+  snap.forEach(function(d){if(KEYS.indexOf(d.id)>-1||d.id==='ref')D[d.id]=d.data()});
   render();show('home');
 }
 function dk(k){return k==='reg2'?'reg':k}
@@ -120,12 +121,13 @@ function off(k){return k==='reg2'?100:0}
 function wkStart(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime()}
 function isD(k,i){var x=D[dk(k)]||{},t=x.done&&x.done[i+off(k)];return !!t&&t>=wkStart()}
 function info(k){var x=D[dk(k)]||{};var m=x.items||[];var dn=m.filter(function(_,i){return isD(k,i)}).length;return {m:m,dn:dn,full:m.length>0&&dn===m.length}}
+function refBox(){var r=(D.ref&&D.ref.items)||[];if(!r.length)return '';return '<div class="dcard"><div class="dh"><b>참고자료</b></div>'+r.map(function(it){var h=it.u?' href="'+esc(it.u)+'" target="_blank" rel="noopener"':'';return '<a class="rf"'+h+'><div><b>'+esc(it.n)+'</b><small>'+esc(it.t||'')+'</small></div><i>&rsaquo;</i></a>'}).join('')+'</div>'}
 function render(){
   var d=new Date();
   $('dt').textContent=(d.getMonth()+1)+'/'+d.getDate()+'('+DAY[d.getDay()]+')';
   $('hi').textContent=me+'님';
   var have=TABS.filter(function(k){return info(k).m.length>0&&(k!=='mkp'||(D.mkp&&D.mkp.on===true))});
-  if(!have.length){$('tabs').innerHTML='';$('cards').innerHTML='<div class="card"><div class="sub">지정된 학습이 없습니다</div></div>';return}
+  if(!have.length){$('tabs').innerHTML='';$('cards').innerHTML='<div class="card"><div class="sub">지정된 학습이 없습니다</div></div>'+refBox();return}
   if(!CUR||have.indexOf(CUR)<0){var w=new Date().getDay(),dd=w===5?'fri':(w===6?'mkp':(info('reg').full&&have.indexOf('reg2')>-1?'reg2':'reg'));CUR=have.indexOf(dd)>-1?dd:have[0]}
   $('tabs').innerHTML=have.map(function(k){return '<button data-t="'+k+'"'+(k===CUR?' class="on"':'')+'>'+TS[k]+'</button>'}).join('');
   $('stamps').innerHTML=have.map(function(k){var f=info(k),left=f.m.length-f.dn;return '<button data-s="'+k+'" class="'+(f.full?'full ':'')+(k===CUR?'cur':'')+'"><div class="c" style="--p:'+(f.m.length?Math.round(f.dn/f.m.length*100):0)+'">'+(f.full?'&#10003;':'')+'</div><b>'+TS[k]+'</b><small>'+(f.full?'모두 완료':f.dn+'/'+f.m.length+' · 남은 '+left+'개')+'</small></button>'}).join('');
@@ -137,7 +139,7 @@ function render(){
       return '<div class="task'+(dn?' done':'')+(i===first?' now':'')+'" data-k="'+k+'" data-i="'+i+'"><div class="no">'+(i+1)+'</div><div class="tx"><div class="nm">'+esc(it.n)+'</div><div class="tg">'+esc(it.t||'')+'</div></div>'+(dn?'':'<div class="go">&rsaquo;</div>')+'<button class="ck" data-ck="1">'+(dn?'취소':'학습완료')+'</button></div>';
     }).join('');
     return '<div class="dcard" id="dc'+k+'"><div class="dh"><b>'+TN[k]+'</b><span class="cnt">'+f.m.length+'개 중 '+f.dn+'개 완료</span></div><div class="prog"><i style="width:'+(f.m.length?f.dn/f.m.length*100:0)+'%"></i></div>'+items+'</div>';
-  }).join('');
+  }).join('')+refBox();
 }
 
 $('go1').onclick=async function(){
