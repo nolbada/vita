@@ -163,7 +163,7 @@ function drawStudents(){
 }
 function stuBtn(s,sub){
   var d=DATA[s.id]&&Object.keys(DATA[s.id].dirty).some(function(k){return DATA[s.id].dirty[k]});
-  return '<button class="stu'+(s.id===SEL?' on':'')+'" data-id="'+s.id+'"><span><b>'+esc(s.name)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span>'+(d?'<span class="dot"></span>':'')+'</button>';
+  return '<button class="stu'+(s.id===SEL&&TARGET!=='cls'?' on':'')+'" data-id="'+s.id+'"><span><b>'+esc(s.name)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span>'+(d?'<span class="dot"></span>':'')+'</button>';
 }
 function drawTabs(){
   $('tb').innerHTML=TABS.map(function(t){return '<button data-k="'+t[0]+'" class="'+(TAB===t[0]?'on':'')+'">'+t[1]+'</button>'}).join('');
@@ -171,7 +171,7 @@ function drawTabs(){
 function drawList(){
   var s=cur();
   if(!s){$('nm').textContent='학생을 선택하세요';$('ns').textContent='';$('ls').innerHTML='';$('satbox').classList.add('hide');return}
-  $('nm').textContent=s.name;$('ns').textContent=s.cls;
+  if(TARGET==='cls'){$('nm').textContent=s.cls;$('ns').textContent='반 전체 '+ST.filter(function(x){return x.cls===s.cls}).length+'명에게 지정'}else{$('nm').textContent=s.name;$('ns').textContent=s.cls}
   var D=DATA[s.id];
   if(!D){$('ls').innerHTML='<div class="em">불러오는 중</div>';return}
   var T=D[TAB],its=T.items;
