@@ -177,12 +177,15 @@ $('cards').onclick=async function(e){
     return;
   }
   if(isDone)return;
-  if(it.u)window.open(it.u,'_blank');
+  if(it.u)window.open(lk(it.u,k,i),'_blank');
   if(!x.start){
     u.start=now;u.t=now;
     try{await updateDoc(doc(db,'vday',uid,'days',k),u);x.start=now;x.t=now}catch(er){}
   }
 };
+function lk(u,k,i){if(!/\/via\/vsignal-[ke]\//.test(u))return u;return u+(u.indexOf('?')<0?'?':'&')+'vd='+k+'&vi='+i}
+var lastLd=0;
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&uid&&Date.now()-lastLd>20000){lastLd=Date.now();load().catch(function(){})}});
 $('tabs').onclick=function(e){var b=e.target.closest('button');if(!b)return;var el=$('dc'+b.getAttribute('data-t'));if(el)el.scrollIntoView({behavior:'smooth',block:'start'})};
 $('out').onclick=async function(){try{await signOut(auth)}catch(e){}$('pw').value='';$('nm').value='';me='';uid='';D={};show('login')};
 ['nm','pw'].forEach(function(i){$(i).addEventListener('keydown',function(e){if(e.key==='Enter')$('go1').click()})});
