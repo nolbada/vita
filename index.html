@@ -49,6 +49,7 @@ input:focus{outline:2px solid var(--main);border-color:transparent}
 .week .today b{border-color:var(--main)}
 .foot{margin-top:28px}
 .rf{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:8px;color:var(--ink);text-decoration:none}.rf b{display:block;font-size:15px}.rf small{display:block;font-size:13px;color:var(--sub);margin-top:2px}.rf i{margin-left:auto;font-style:normal;color:var(--sub);font-size:22px}
+.task.lk .no{background:var(--main);color:#fff}.task.opt{background:#fff8d6;border-color:#efe2a3}.task.done.lk .no{background:#eceeed;color:#a4aea8}.task.opt.done{background:transparent;border-color:var(--line)}.rf{background:#e6f6ea;border-color:#b7e0c1}.rf i{color:#2f8a4d}
 </style>
 </head>
 <body>
@@ -120,7 +121,8 @@ function dk(k){return k==='reg2'?'reg':k}
 function off(k){return k==='reg2'?100:0}
 function wkStart(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime()}
 function isD(k,i){var x=D[dk(k)]||{},t=x.done&&x.done[i+off(k)];return !!t&&t>=wkStart()}
-function info(k){var x=D[dk(k)]||{};var m=x.items||[];var dn=m.filter(function(_,i){return isD(k,i)}).length;return {m:m,dn:dn,full:m.length>0&&dn===m.length}}
+function isOpt(it){return /^dl-/.test(it.c||'')||/대화문/.test(it.n||'')}
+function info(k){var x=D[dk(k)]||{};var m=x.items||[];var rq=0,dn=0;m.forEach(function(it,i){if(isOpt(it))return;rq++;if(isD(k,i))dn++});return {m:m,dn:dn,rq:rq,full:rq>0&&dn===rq}}
 function refBox(){var r=(D.ref&&D.ref.items)||[];if(!r.length)return '';return '<div class="dcard"><div class="dh"><b>참고자료</b></div>'+r.map(function(it){var h=it.u?' href="'+esc(it.u)+'" target="_blank" rel="noopener"':'';return '<a class="rf"'+h+'><div><b>'+esc(it.n)+'</b><small>'+esc(it.t||'')+'</small></div><i>&rsaquo;</i></a>'}).join('')+'</div>'}
 function render(){
   var d=new Date();
@@ -130,15 +132,15 @@ function render(){
   if(!have.length){$('tabs').innerHTML='';$('cards').innerHTML='<div class="card"><div class="sub">지정된 학습이 없습니다</div></div>'+refBox();return}
   if(!CUR||have.indexOf(CUR)<0){var w=new Date().getDay(),dd=w===5?'fri':(w===6?'mkp':(info('reg').full&&have.indexOf('reg2')>-1?'reg2':'reg'));CUR=have.indexOf(dd)>-1?dd:have[0]}
   $('tabs').innerHTML=have.map(function(k){return '<button data-t="'+k+'"'+(k===CUR?' class="on"':'')+'>'+TS[k]+'</button>'}).join('');
-  $('stamps').innerHTML=have.map(function(k){var f=info(k),left=f.m.length-f.dn;return '<button data-s="'+k+'" class="'+(f.full?'full ':'')+(k===CUR?'cur':'')+'"><div class="c" style="--p:'+(f.m.length?Math.round(f.dn/f.m.length*100):0)+'">'+(f.full?'&#10003;':'')+'</div><b>'+TS[k]+'</b><small>'+(f.full?'모두 완료':f.dn+'/'+f.m.length+' · 남은 '+left+'개')+'</small></button>'}).join('');
+  $('stamps').innerHTML=have.map(function(k){var f=info(k),left=f.rq-f.dn;return '<button data-s="'+k+'" class="'+(f.full?'full ':'')+(k===CUR?'cur':'')+'"><div class="c" style="--p:'+(f.rq?Math.round(f.dn/f.rq*100):0)+'">'+(f.full?'&#10003;':'')+'</div><b>'+TS[k]+'</b><small>'+(f.full?'모두 완료':f.dn+'/'+f.rq+' · 남은 '+left+'개')+'</small></button>'}).join('');
   $('cards').innerHTML=[CUR].map(function(k){
     var f=info(k),first=-1;
-    f.m.forEach(function(it,i){if(first<0&&!isD(k,i))first=i});
+    f.m.forEach(function(it,i){if(first<0&&!isD(k,i)&&!isOpt(it))first=i});
     var items=f.m.map(function(it,i){
       var dn=isD(k,i);
-      return '<div class="task'+(dn?' done':'')+(i===first?' now':'')+'" data-k="'+k+'" data-i="'+i+'"><div class="no">'+(i+1)+'</div><div class="tx"><div class="nm">'+esc(it.n)+'</div><div class="tg">'+esc(it.t||'')+'</div></div>'+(dn?'':'<div class="go">&rsaquo;</div>')+'<button class="ck" data-ck="1">'+(dn?'취소':'학습완료')+'</button></div>';
+      return '<div class="task'+(dn?' done':'')+(i===first?' now':'')+(it.u?' lk':'')+(isOpt(it)?' opt':'')+'" data-k="'+k+'" data-i="'+i+'"><div class="no">'+(i+1)+'</div><div class="tx"><div class="nm">'+esc(it.n)+'</div><div class="tg">'+esc(it.t||'')+'</div></div>'+(dn?'':'<div class="go">&rsaquo;</div>')+'<button class="ck" data-ck="1">'+(dn?'취소':'학습완료')+'</button></div>';
     }).join('');
-    return '<div class="dcard" id="dc'+k+'"><div class="dh"><b>'+TN[k]+'</b><span class="cnt">'+f.m.length+'개 중 '+f.dn+'개 완료</span></div><div class="prog"><i style="width:'+(f.m.length?f.dn/f.m.length*100:0)+'%"></i></div>'+items+'</div>';
+    return '<div class="dcard" id="dc'+k+'"><div class="dh"><b>'+TN[k]+'</b><span class="cnt">'+f.rq+'개 중 '+f.dn+'개 완료</span></div><div class="prog"><i style="width:'+(f.rq?f.dn/f.rq*100:0)+'%"></i></div>'+items+'</div>';
   }).join('')+refBox();
 }
 
