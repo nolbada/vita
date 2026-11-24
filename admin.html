@@ -35,6 +35,8 @@ td.r{font-size:12px;color:var(--sub)}td.r.ok{color:var(--ok)}td.r.ng{color:var(-
     <button id="mk">선택한 학생 계정 만들기</button>
     <button id="rs" class="g">선택한 학생 비밀번호 0000</button>
     <button id="sd" class="g">선택한 학생에 샘플 지정 넣기</button>
+    <select id="bk" style="font:inherit;font-size:14px;padding:8px;border-radius:10px;border:1px solid #ccc"></select>
+    <button id="bs">선택한 학생에 이 독해책 지정</button>
     <button id="al" class="g">전체 선택</button>
     <button id="no" class="g">선택 해제</button>
   </div>
@@ -110,6 +112,26 @@ $('sd').onclick=async function(){
     draw();
   }
   $('sd').disabled=false;
+};
+var BOOKS=[['리딩튜터 주니어 스타터','tutorstarter',3],['해커스 리딩스마트 스타터','hackersstarter',2],['리딩튜터 주니어','tutorjunior',4],['해커스 리딩스마트','hackers',4],['능률 1316 Reading','1316reading',3],['브릭스 중학독해','bricks',4],['리딩그라피','readinggraphy',6],['리딩튜터 챌린저','tutorchallenger',3],['해커스 리딩스마트 마스터','hackersmaster',4]];
+$('bk').innerHTML=BOOKS.map(function(b){var o='';for(var i=1;i<=b[2];i++)o+='<option value="'+b[1]+i+'">'+b[0]+' '+i+'</option>';return o}).join('');
+$('bs').onclick=async function(){
+  var p=picked();if(!p.length)return;$('bs').disabled=true;
+  var id=$('bk').value,nm=$('bk').options[$('bk').selectedIndex].text,u='https://nolbada.github.io/via/shared/?a='+id+'/&new=1';
+  for(var i=0;i<p.length;i++){
+    try{
+      var n=0;
+      for(var k of ['reg','fri','mkp']){
+        var r=doc(db,'vday',p[i].id,'days',k),sn=await getDoc(r);if(!sn.exists())continue;
+        var d=sn.data(),its=d.items||[],ch=false;
+        its.forEach(function(it){if(it.n==='개별 독해책'){it.u=u;it.t=nm;ch=true;n++}});
+        if(ch)await setDoc(r,d);
+      }
+      RES[p[i].id]=n?('독해책 '+nm+' ('+n+'곳)'):'개별 독해책 항목 없음';
+    }catch(e){RES[p[i].id]='실패: 독해책 저장'}
+    draw();
+  }
+  $('bs').disabled=false;
 };
 getRedirectResult(auth).catch(function(){});
 onAuthStateChanged(auth,async function(u){
