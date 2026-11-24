@@ -147,7 +147,7 @@ var C={cat:[
 ],chips:[['전체',null],['숙제·제출',['비단챌 제출','단어시험','비단챌 말하기 시험']],['단어',['비단챌 제출','단어책']],['구문',['V시그널']],['독해',['개별 독해책','클카 독해TEST','M1 리딩']],['문법',['문법']],['기타',['클카 오늘의 단어','대화문']]],
 base:['비단챌 제출','단어시험','비단챌 말하기 시험','V시그널','개별 독해책','클카 독해TEST','M1 리딩','클카 오늘의 단어','대화문']};
 var $=function(i){return document.getElementById(i)};
-var TABS=[['reg','주중 (Day 1 · Day 2)'],['fri','Friday'],['mkp','Saturday']];
+var TABS=[['reg','주중 (Day 1 · Day 2)'],['fri','Friday'],['mkp','Saturday'],['ref','참고자료']];
 var ST=[],SEL='',VIEW='cls',TAB='reg',CHIP='전체',TARGET='one',DATA={},BUSY=false,BASECONF=false,MSG='';
 var BYID={},GRP={};
 C.cat.forEach(function(g){GRP[g.g]=g;g.items.forEach(function(it){BYID[it.id]=it})});
