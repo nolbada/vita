@@ -50,6 +50,18 @@ input:focus{outline:2px solid var(--main);border-color:transparent}
 .foot{margin-top:28px}
 .rf{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:8px;color:var(--ink);text-decoration:none}.rf b{display:block;font-size:15px}.rf small{display:block;font-size:13px;color:var(--sub);margin-top:2px}.rf i{margin-left:auto;font-style:normal;color:var(--sub);font-size:22px}
 .task.lk .no{background:var(--main);color:#fff}.task.opt{background:#fff8d6;border-color:#efe2a3}.task.done.lk .no{background:#eceeed;color:#a4aea8}.task.opt.done{background:transparent;border-color:var(--line)}.rf{background:#e6f6ea;border-color:#b7e0c1}.rf i{color:#2f8a4d}
+.hwb{background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:14px;overflow:hidden}
+.hwh{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;font-size:15px;font-weight:700}
+.hwh small{font-size:13px;font-weight:500;color:var(--sub)}
+.hwr{padding:2px 16px 14px;border-top:1px solid var(--line)}
+.hwi{padding:12px 0 0}.hwi b{font-size:14px}.hwi small{display:block;font-size:12px;color:var(--sub);margin-top:2px}
+.hws{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.hws div{min-width:38px;height:34px;padding:0 6px;border-radius:9px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#c3cad6;cursor:pointer}
+.hws .O{background:#1e3a6e;border-color:#1e3a6e;color:#fff;cursor:default}
+.hws .T{background:#d99a1f;border-color:#d99a1f;color:#fff;cursor:default}
+.hws .X{background:#c2562f;border-color:#c2562f;color:#fff;cursor:default}
+.hws .N,.hws .A,.hws .R{background:#9aa3b0;border-color:#9aa3b0;color:#fff;font-size:12px;cursor:default}
+.hws .S{background:#e3eaf6;border-color:#e3eaf6;color:#9fb0cf}
 </style>
 </head>
 <body>
@@ -85,6 +97,7 @@ input:focus{outline:2px solid var(--main);border-color:transparent}
   <div class="top">
     <div><div class="date" id="dt"></div><h1 id="hi"></h1></div>
   </div>
+  <div id="hwbox"></div>
   <div class="tabs" id="tabs"></div>
   <div id="cards"></div>
   <div class="sh">이번 주 스탬프</div>
@@ -98,7 +111,7 @@ input:focus{outline:2px solid var(--main);border-color:transparent}
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {getAuth,setPersistence,browserLocalPersistence,inMemoryPersistence,signInWithEmailAndPassword,updatePassword,signOut,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import {getFirestore,collection,getDocs,doc,updateDoc,deleteField} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import {getFirestore,collection,getDocs,getDoc,doc,updateDoc,deleteField} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 var app=initializeApp({apiKey:"AIzaSyC88G-OjMJOqVqnIVqunzh7fvk91wtKKnA",authDomain:"h-roadmap.firebaseapp.com",projectId:"h-roadmap",appId:"1:575520405083:web:b9f40b64cb0ae3d1a9317e"},'vita');
 var auth=getAuth(app),db=getFirestore(app);
 var $=function(i){return document.getElementById(i)};
@@ -115,7 +128,7 @@ async function load(){
   D={};
   var snap=await getDocs(collection(db,'vday',uid,'days'));
   snap.forEach(function(d){if(KEYS.indexOf(d.id)>-1||d.id==='ref')D[d.id]=d.data()});
-  render();show('home');
+  await loadHw();render();show('home');
 }
 function dk(k){return k==='reg2'?'reg':k}
 function off(k){return k==='reg2'?100:0}
@@ -126,7 +139,7 @@ function info(k){var x=D[dk(k)]||{};var m=x.items||[];var rq=0,dn=0;m.forEach(fu
 function refBox(){var r=(D.ref&&D.ref.items)||[];if(!r.length)return '';return '<div class="dcard"><div class="dh"><b>참고자료</b></div>'+r.map(function(it){var h=it.u?' href="'+esc(it.u)+'" target="_blank" rel="noopener"':'';return '<a class="rf"'+h+'><div><b>'+esc(it.n)+'</b><small>'+esc(it.t||'')+'</small></div><i>&rsaquo;</i></a>'}).join('')+'</div>'}
 function render(){
   var d=new Date();
-  $('dt').textContent=(d.getMonth()+1)+'/'+d.getDate()+'('+DAY[d.getDay()]+')';
+  $('hwbox').innerHTML=hwBox();$('dt').textContent=(d.getMonth()+1)+'/'+d.getDate()+'('+DAY[d.getDay()]+')';
   $('hi').textContent=me+'님';
   var have=TABS.filter(function(k){return info(k).m.length>0&&(k!=='mkp'||(D.mkp&&D.mkp.on===true))});
   if(!have.length){$('tabs').innerHTML='';$('cards').innerHTML='<div class="card"><div class="sub">지정된 학습이 없습니다</div></div>'+refBox();return}
@@ -144,6 +157,49 @@ function render(){
   }).join('')+refBox();
 }
 
+
+var HW=null,HWC={},WK='',HWOPEN=false;
+function wkKey(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+1)%7));return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+async function loadHw(){
+  HW=null;var tk=D.reg&&D.reg.tk;if(!tk)return;
+  try{
+    var s=await getDoc(doc(db,'hw_p',tk));if(!s.exists())return;
+    var x=s.data(),meta=x.meta;if(typeof meta==='string')meta=JSON.parse(meta);
+    if(!meta||!meta.items||!meta.items.length)return;
+    WK=wkKey();var w={};try{var j=(x.w||{})[WK];w=typeof j==='string'?JSON.parse(j):(j||{})}catch(e){}
+    HW={items:meta.items,w:w};HWC=((D.reg.hc||{})[WK])||{};
+  }catch(e){HW=null}
+}
+var HSY={O:'O',T:'△',X:'X',N:'미',A:'결',R:'쉼'};
+function hwBox(){
+  if(!HW)return '';
+  var tot=0,dn=0;
+  var rows=HW.items.map(function(it){
+    var n=it.n||0,ms=HW.w[it.k]||[],cl=HWC[it.k]||[],cells='';
+    for(var s=0;s<n;s++){
+      var m=ms[s]||'',c=!m&&cl[s]===true,cls='',tx='';
+      if(m){cls=m;tx=HSY[m]||''}else if(c){cls='S';tx='✓'}else{tx=(it.labels&&it.labels[s])||''}
+      if(m!=='R'&&m!=='A')tot++;
+      if(m==='O'||c)dn++;
+      cells+='<div class="'+cls+'" data-hk="'+esc(it.k)+'" data-hs="'+s+'" data-hm="'+(m?1:0)+'">'+esc(tx)+'</div>';
+    }
+    return '<div class="hwi"><b>'+esc(it.label)+'</b><small>'+esc(it.sub||'')+'</small><div class="hws">'+cells+'</div></div>';
+  }).join('');
+  return '<div class="hwb"><div class="hwh" data-hh="1"><span>숙제</span><small>'+dn+' / '+tot+' · '+(HWOPEN?'접기':'펼치기')+'</small></div>'+(HWOPEN?'<div class="hwr">'+rows+'</div>':'')+'</div>';
+}
+$('hwbox').onclick=async function(e){
+  if(e.target.closest('[data-hh]')){HWOPEN=!HWOPEN;$('hwbox').innerHTML=hwBox();return}
+  var c=e.target.closest('[data-hk]');if(!c||c.getAttribute('data-hm')==='1'||!HW||!uid)return;
+  var k=c.getAttribute('data-hk'),s=+c.getAttribute('data-hs');
+  var prev=(HWC[k]||[]).slice(),arr=prev.slice();
+  while(arr.length<=s)arr.push(false);
+  arr[s]=!arr[s];HWC[k]=arr;$('hwbox').innerHTML=hwBox();
+  try{
+    var u={};u['hc.'+WK+'.'+k]=arr;
+    await updateDoc(doc(db,'vday',uid,'days','reg'),u);
+    var r=D.reg=D.reg||{};r.hc=r.hc||{};r.hc[WK]=r.hc[WK]||{};r.hc[WK][k]=arr;
+  }catch(er){HWC[k]=prev;$('hwbox').innerHTML=hwBox()}
+};
 $('go1').onclick=async function(){
   var n=$('nm').value.replace(/\s/g,''),p=$('pw').value;
   if(!n||!p){$('e1').textContent='이름과 비밀번호를 모두 입력하세요';return}
