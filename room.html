@@ -337,7 +337,7 @@ $('ls').onclick=function(e){
   if(a==='up'&&i>0){var x=T.items[i];T.items[i]=T.items[i-1];T.items[i-1]=x}
   else if(a==='dn'&&i<T.items.length-1){var y=T.items[i];T.items[i]=T.items[i+1];T.items[i+1]=y}
   else if(a==='del'){T.items.splice(i,1)}
-  else if(a==='pk'){var pv=BYID[b.getAttribute('data-v')];if(pv)T.items[i]=mkItem(pv)}
+  else if(a==='pk'){var pv=BYID[b.getAttribute('data-v')];if(pv){if(T.items[i]&&T.items[i].c===pv.id&&!DATA[s.id].dirty[TAB]){MSG='이미 지정돼 있어요 · 보낼 것 없음';drawFoot();return}T.items[i]=mkItem(pv)}}
   else if(a==='nx'){var it=T.items[i],nv=BYID[BYID[it.c].next];T.items[i]=mkItem(nv)}
   else return;
   DATA[s.id].dirty[TAB]=true;BASECONF=false;MSG='';drawAll();
