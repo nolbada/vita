@@ -217,7 +217,7 @@ function drawList(){
     $('sattx').textContent=T.on?'이 학생 화면에 토요일이 보임':'토요일이 학생 화면에 보이지 않음';
     $('satbtn').textContent=T.on?'토요일 해제':'토요일 지정';
   }else $('satbox').classList.add('hide');
-  $('base').className='g'+(BASECONF?' w':'')+(TAB!=='reg'?' hide':'');
+  $('base').className='g'+(BASECONF?' w':'')+(TAB!=='reg'||its.length?' hide':'');
   $('base').textContent=BASECONF?'비어 있지 않음 · 한 번 더 누르면 덮어씀':'기본 목록 깔기';
   $('basetx').textContent=TARGET==='cls'?'같은 반 전체에 적용':'';
   if(!its.length){$('ls').innerHTML='<div class="em">비어 있음</div>'+rb(D,TAB);return}
