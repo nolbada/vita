@@ -124,7 +124,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 
 .ip .in em{font-style:normal;font-size:12px;font-weight:600;color:var(--a);margin-left:8px}
 .rt{background:#fff;border:1px solid var(--ln);border-radius:14px;overflow:hidden}
-.rh,.rr{display:grid;grid-template-columns:1.1fr 1.1fr 1.4fr 1.4fr;gap:8px;padding:11px 18px;align-items:center;font-size:14px}
+.rh,.rr{display:grid;grid-template-columns:1.1fr 1.5fr 1.1fr 1.4fr;gap:8px;padding:11px 18px;align-items:center;font-size:14px}
 .rh{background:var(--soft);color:var(--a);font-weight:700;font-size:13px}
 .rr{border-top:1px solid #eef1f6;cursor:pointer}
 .rr:hover{background:#faf8fd}
@@ -158,7 +158,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 .ox{margin-top:22px}.ox h3{font-size:14px;color:var(--sub);margin:0 2px 8px}
 .ox div{display:flex;flex-wrap:wrap;gap:6px}.ox span{font-size:13px;padding:5px 11px;border-radius:999px;background:#eef1f6;color:var(--sub)}
 .ox a,.pop a.lk{display:inline-block;margin-top:10px;font-size:13px;color:var(--a);font-weight:700;text-decoration:none}
-@media(max-width:640px){.rh,.rr{grid-template-columns:1fr 1fr 1.3fr;padding:11px 14px}.rh span:nth-child(3),.rr span:nth-child(3){display:none}}
+@media(max-width:640px){.rh,.rr{grid-template-columns:1fr 1.3fr 1fr;padding:11px 14px}.rh span:nth-child(4),.rr span:nth-child(4){display:none}}
 
 .ip{cursor:pointer}
 .sr{padding:10px 0;border-top:1px solid var(--line)}
@@ -375,10 +375,10 @@ function renderInfo(){
   $('icnt').textContent=IK?(infoCls(IK)+' · '+L.length+'명'):('재원 '+all.length+'명');
   var h='';
   if(L.length){
-    h='<div class="rt"><div class="rh"><span>이름</span><span>반</span><span>학교 · 학년</span><span>입회일</span></div>'+L.map(function(s){
+    h='<div class="rt"><div class="rh"><span>이름</span><span>학교 · 학년</span><span>반</span><span>입회일</span></div>'+L.map(function(s){
       var sub=[s.school||'',s.grade||''].filter(Boolean).join(' · ');
       var jd=SC?jdate(JN[nm(s.name)]):'';
-      return '<div class="rr" data-n="'+esc(s.name)+'"><span><b>'+esc(s.name)+'</b></span><span class="m">'+esc(infoCls(s.cls))+'</span><span class="m">'+(esc(sub)||'-')+'</span><span class="d">'+(SC?(jd||'-'):'')+'</span></div>';
+      return '<div class="rr" data-n="'+esc(s.name)+'"><span><b>'+esc(s.name)+'</b></span><span class="m">'+(esc(sub)||'-')+'</span><span class="m">'+esc(infoCls(s.cls))+'</span><span class="d">'+(SC?(jd||'-'):'')+'</span></div>';
     }).join('')+'</div>';
   }else h='<div class="empty">표시할 학생이 없습니다</div>';
   el.innerHTML=h;
@@ -495,7 +495,7 @@ function renderTT(){
   el.innerHTML=h;
 }
 $('itt').onclick=function(e){var b=e.target.closest('.tk');if(!b)return;IK=b.getAttribute('data-k');IV='ls';$('isq').value='';infoView()};
-$('ivb').onclick=function(e){var b=e.target.closest('button');if(!b)return;IV=b.getAttribute('data-v');IK='';infoView()};
+$('ivb').onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.getAttribute('data-v')==='ac'&&window.matchMedia('(pointer:coarse)').matches){window.open('admin.html','_blank');return}IV=b.getAttribute('data-v');IK='';infoView()};
 function openM(m){
   document.body.setAttribute('data-m',m);
   document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-m')===m)});
