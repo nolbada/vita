@@ -405,7 +405,7 @@ function hp(e){var f=e.e||e.s;return CAL.some(function(p){return p.p&&p.k===e.k&
 function renderCal(){
   var el=$('ical');if(!BOOT||!CAL){el.innerHTML='';return}
   var now=new Date(),today=ymd(now);
-  var up=CAL.filter(function(e){return (e.e||e.s)>=today}).sort(function(a,b){return a.s<b.s?-1:a.s>b.s?1:0}).slice(0,6);
+  var up=CAL.filter(function(e){return !e.p&&(e.e||e.s)>=today}).sort(function(a,b){return a.s<b.s?-1:a.s>b.s?1:0}).slice(0,6);
   var h='<div class="cu">'+up.map(function(e){var k=CK[e.k]||CK.etc;return '<div class="u"><i style="background:'+k[1]+'"></i><b>'+esc(e.n)+'</b><span>'+esc(rng(e))+'</span></div>'}).join('')+'</div>';
   h+='<div class="chd"><button data-cn="-1">‹</button><b>'+CY+'년 '+(CM+1)+'월</b><button data-cn="1">›</button><button data-cn="0">오늘</button></div>';
   h+='<div class="cwk"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>';
