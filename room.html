@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex">
 <title>자료실</title>
 <style>
-:root{--bg:#f3f5f9;--card:#fff;--ink:#1b2230;--sub:#5b6577;--line:#dce2ec;--main:#2b5ce6;--soft:#e6ecfb;--chip:#e3e8f1;--warn:#b3321f;--warnbg:#fdebe7;--amber:#7a4b00;--amberbg:#fff1d6}
+:root{--bg:#f3f5f9;--card:#fff;--ink:#1b2230;--sub:#5b6577;--line:#dce2ec;--main:#B4532A;--soft:#fbeadf;--chip:#e3e8f1;--warn:#b3321f;--warnbg:#fdebe7;--amber:#7a4b00;--amberbg:#fff1d6}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
@@ -15,6 +15,7 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 button:disabled{cursor:default}
 select,input{font:inherit;color:var(--ink)}
 .hide{display:none!important}
+.in .hd{display:none}
 .hd{flex:none;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:#fff;border-bottom:1px solid var(--line)}
 .hd b{font-size:20px}.hd span{font-size:14px;color:var(--sub);margin-left:12px}
 .main{flex:1;min-height:0;display:flex}
@@ -92,7 +93,8 @@ textarea{width:100%;height:66px;resize:none;border:1.5px solid #cbd2de;border-ra
 </style>
 </head>
 <body>
-<div id="lg" class="login"><h1>자료실</h1><a href="board.html" style="font-size:15px;font-weight:700;color:#1E3A6E;text-decoration:none;margin-bottom:14px">&lsaquo; 모니터링으로</a><button id="gl">Google로 로그인</button><div class="err" id="le"></div></div>
+<script>if(self===top&&location.search.indexOf("keep")<0)location.replace("board.html#room");else if(self!==top)document.documentElement.className="in";</script>
+<div id="lg" class="login"><h1>자료실</h1><button id="gl">Google로 로그인</button><div class="err" id="le"></div></div>
 <div id="app" class="hide" style="display:flex;flex-direction:column;flex:1;min-height:0">
 <div class="hd"><div style="display:flex;align-items:center"><a href="board.html" style="font-size:15px;font-weight:700;color:#1E3A6E;text-decoration:none;border:1.5px solid #c9d5ec;background:#f1f5fc;border-radius:10px;padding:9px 16px;margin-right:16px">&lsaquo; 모니터링</a><b>자료실</b><span>오늘의 학습 · 비내신</span></div><span id="who"></span></div>
 <div class="mt" id="mt"><button data-p="left" class="on">학생</button><button data-p="mid">목록</button><button data-p="right">자료</button></div>
@@ -150,7 +152,7 @@ var C={cat:[
 base:['비단챌 제출','단어시험','비단챌 말하기 시험','V시그널','개별 독해책','클카 독해TEST','M1 리딩','클카 오늘의 단어','대화문']};
 var $=function(i){return document.getElementById(i)};
 var TABS=[['reg','주중 (Day 1 · Day 2)'],['fri','Friday'],['mkp','Saturday'],['ref','참고자료']];
-var ST=[],SEL='',VIEW='cls',TAB='reg',CHIP='전체',TARGET='one',DATA={},BUSY=false,BASECONF=false,MSG='';
+var ST=[],SEL='',VIEW='cls',TAB='reg',LAST='reg',CHIP='전체',TARGET='one',DATA={},BUSY=false,BASECONF=false,MSG='';
 var BYID={},GRP={};
 C.cat.forEach(function(g){GRP[g.g]=g;g.items.forEach(function(it){BYID[it.id]=it})});
 function esc(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -194,7 +196,8 @@ function stuBtn(s,sub){
   return '<button class="stu'+(s.id===SEL&&TARGET!=='cls'?' on':'')+'" data-id="'+s.id+'"><span><b>'+esc(s.name)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span>'+(d?'<span class="dot"></span>':'')+'</button>';
 }
 function drawTabs(){
-  $('tb').innerHTML=TABS.map(function(t){return '<button data-k="'+t[0]+'" class="'+(TAB===t[0]?'on':'')+'">'+t[1]+'</button>'}).join('');
+  var ref=TAB==='ref';
+  $('tb').innerHTML='<div class="seg" style="margin-right:10px"><button data-md="list" class="'+(ref?'':'on')+'" style="height:42px;padding:0 18px;font-size:16px">할 일 목록</button><button data-md="ref" class="'+(ref?'on':'')+'" style="height:42px;padding:0 18px;font-size:16px">참고자료</button></div>'+(ref?'':TABS.slice(0,3).map(function(t){return '<button data-k="'+t[0]+'" class="'+(TAB===t[0]?'on':'')+'">'+t[1]+'</button>'}).join(''));
 }
 function drawList(){
   var s=cur();
@@ -296,7 +299,7 @@ $('vc').onclick=function(){VIEW='cls';$('vc').classList.add('on');$('va').classL
 $('va').onclick=function(){VIEW='abc';$('va').classList.add('on');$('vc').classList.remove('on');drawStudents()};
 $('t1').onclick=function(){TARGET='one';$('t1').classList.add('on');$('t2').classList.remove('on');BASECONF=false;drawAll()};
 $('t2').onclick=function(){if(!cur())return;TARGET='cls';$('t2').classList.add('on');$('t1').classList.remove('on');BASECONF=false;drawAll()};
-$('tb').onclick=function(e){var b=e.target.closest('button');if(!b)return;TAB=b.getAttribute('data-k');BASECONF=false;drawAll()};
+$('tb').onclick=function(e){var b=e.target.closest('button');if(!b)return;var md=b.getAttribute('data-md');if(md){TAB=md==='ref'?'ref':LAST}else{TAB=b.getAttribute('data-k');LAST=TAB}BASECONF=false;drawAll()};
 $('cc').onclick=function(e){var b=e.target.closest('button');if(!b)return;CHIP=b.getAttribute('data-c');drawPantry()};
 $('pn').onclick=function(e){
   var b=e.target.closest('.add');if(!b||!cur())return;
