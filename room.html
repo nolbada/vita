@@ -90,6 +90,7 @@ textarea{width:100%;height:66px;resize:none;border:1.5px solid #cbd2de;border-ra
 .tabs{gap:6px}.tabs .seg{flex:1 1 100%;margin-right:0!important}.tabs .seg button{flex:1;height:42px}.tabs button{flex:1 1 auto;padding:0 10px;font-size:14px;white-space:nowrap;min-width:0}
 .bar{padding:0 12px;height:64px}.send{padding:0 18px}#ft{font-size:13px}
 }
+.rfb{margin-top:14px;background:#e6f6ea;border:1px solid #b7e0c1;border-radius:14px;padding:10px 14px}.rfh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.rfh button{height:34px;padding:0 14px}.rfi{display:flex;gap:10px;align-items:baseline;padding:6px 0;border-top:1px solid #cfe9d6;font-size:15px}.rfi span{color:#4a5468;font-size:13px}
 </style>
 </head>
 <body>
@@ -195,9 +196,14 @@ function stuBtn(s,sub){
   var d=DATA[s.id]&&Object.keys(DATA[s.id].dirty).some(function(k){return DATA[s.id].dirty[k]});
   return '<button class="stu'+(s.id===SEL&&TARGET!=='cls'?' on':'')+'" data-id="'+s.id+'"><span><b>'+esc(s.name)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</span>'+(d?'<span class="dot"></span>':'')+'</button>';
 }
+function rb(D,tab){
+  if(tab==='ref')return '';
+  var r=(D&&D.ref&&D.ref.items)||[];
+  return '<div class="rfb"><div class="rfh"><b>참고자료</b><button class="g" data-md="ref">편집</button></div>'+(r.length?r.map(function(it){return '<div class="rfi"><b>'+esc(it.n)+'</b><span>'+esc(it.t||'')+'</span></div>'}).join(''):'<div class="rfi"><span>지정된 참고자료 없음</span></div>')+'</div>';
+}
 function drawTabs(){
   var ref=TAB==='ref';
-  $('tb').innerHTML='<div class="seg" style="margin-right:10px"><button data-md="list" class="'+(ref?'':'on')+'" style="height:42px;padding:0 18px;font-size:16px">할 일 목록</button><button data-md="ref" class="'+(ref?'on':'')+'" style="height:42px;padding:0 18px;font-size:16px">참고자료</button></div>'+(ref?'':TABS.slice(0,3).map(function(t){return '<button data-k="'+t[0]+'" class="'+(TAB===t[0]?'on':'')+'">'+t[1]+'</button>'}).join(''));
+  $('tb').innerHTML=ref?'<button data-md="list" class="on">‹ 할 일 목록으로</button><span style="align-self:center;font-weight:700">참고자료 편집</span>':TABS.slice(0,3).map(function(t){return '<button data-k="'+t[0]+'" class="'+(TAB===t[0]?'on':'')+'">'+t[1]+'</button>'}).join('');
 }
 function drawList(){
   var s=cur();
@@ -214,7 +220,7 @@ function drawList(){
   $('base').className='g'+(BASECONF?' w':'')+(TAB!=='reg'?' hide':'');
   $('base').textContent=BASECONF?'비어 있지 않음 · 한 번 더 누르면 덮어씀':'기본 목록 깔기';
   $('basetx').textContent=TARGET==='cls'?'같은 반 전체에 적용':'';
-  if(!its.length){$('ls').innerHTML='<div class="em">비어 있음</div>';return}
+  if(!its.length){$('ls').innerHTML='<div class="em">비어 있음</div>'+rb(D,TAB);return}
   var h='';
   its.forEach(function(it,i){
     var g=it.g&&GRP[it.g]&&GRP[it.g].items.length>1?GRP[it.g]:null;
@@ -233,7 +239,7 @@ function drawList(){
       '<button class="ib" data-a="dn" data-i="'+i+'"'+(i===its.length-1?' disabled':'')+' aria-label="아래로"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M4 7l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
       '<button class="ib x" data-a="del" data-i="'+i+'" aria-label="빼기"><svg width="18" height="18" viewBox="0 0 18 18"><path d="M5 5l8 8M13 5l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button></div>';
   });
-  $('ls').innerHTML=h;
+  $('ls').innerHTML=h+rb(D,TAB);
 }
 function drawPantry(){
   $('cc').innerHTML=C.chips.map(function(c){return '<button data-c="'+esc(c[0])+'" class="'+(CHIP===c[0]?'on':'')+'">'+esc(c[0])+'</button>'}).join('');
@@ -326,6 +332,7 @@ $('base').onclick=async function(){
 };
 $('ls').onclick=function(e){
   var b=e.target.closest('button');if(!b)return;
+  if(b.getAttribute('data-md')==='ref'){TAB='ref';BASECONF=false;drawAll();return}
   var s=cur(),T=DATA[s.id][TAB],i=+b.getAttribute('data-i'),a=b.getAttribute('data-a');
   if(a==='up'&&i>0){var x=T.items[i];T.items[i]=T.items[i-1];T.items[i-1]=x}
   else if(a==='dn'&&i<T.items.length-1){var y=T.items[i];T.items[i]=T.items[i+1];T.items[i+1]=y}
