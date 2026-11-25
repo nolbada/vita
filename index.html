@@ -261,7 +261,7 @@ $('cards').onclick=async function(e){
   }
   if(it.u){try{sessionStorage.setItem('vita-in','1')}catch(e){}location.href=lk(it.u,k,i)}
 };
-function lk(u,k,i){if(!/\/via\/vsignal-[ke]\//.test(u))return u;return u+(u.indexOf('?')<0?'?':'&')+'vd='+k+'&vi='+i}
+function lk(u,k,i){if(/\/via\/wama2000\//.test(u))return '/via/wrap/?u='+encodeURIComponent(u);if(!/\/via\/vsignal-[ke]\//.test(u))return u;return u+(u.indexOf('?')<0?'?':'&')+'vd='+k+'&vi='+i}
 var lastLd=0;
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&uid&&Date.now()-lastLd>20000){lastLd=Date.now();load().catch(function(){})}});
 $('tabs').onclick=function(e){var b=e.target.closest('button');if(!b)return;CUR=b.getAttribute('data-t');render()};
