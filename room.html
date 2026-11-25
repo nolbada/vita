@@ -365,6 +365,7 @@ async function sendDoc(id,k){
   });
   var out={items:T.items.map(function(it){var x={n:it.n,t:it.t};if(it.u)x.u=it.u;if(it.c)x.c=it.c;return x}),done:nd,fin:nf,start:old.start||0,t:Date.now()};
   if(k==='mkp')out.on=T.on;
+  for(var q in old){if(!(q in out))out[q]=old[q]}
   await setDoc(r,out);
   T.items.forEach(function(it,ni){it.o=ni;it.f=!!nf[ni]});
   T.exists=true;DATA[id].dirty[k]=false;
