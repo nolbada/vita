@@ -514,7 +514,7 @@ function renderTT(){
 }
 $('itt').onclick=function(e){var b=e.target.closest('.tk');if(!b)return;IK=b.getAttribute('data-k');IV='ls';$('isq').value='';infoView()};
 $('hcb').onclick=function(){SHN=SHN?0:1;this.classList.toggle('on',!!SHN);if(IV==='tt')renderTT();else if(IV==='ls')renderInfo()};
-$('ivb').onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.getAttribute('data-v')==='ac'&&window.matchMedia('(pointer:coarse)').matches){window.open('admin.html','_blank');return}IV=b.getAttribute('data-v');IK='';infoView()};
+$('ivb').onclick=function(e){var b=e.target.closest('button');if(!b)return;IV=b.getAttribute('data-v');IK='';infoView()};
 function openM(m){
   document.body.setAttribute('data-m',m);
   document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-m')===m)});
