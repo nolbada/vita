@@ -118,13 +118,20 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 .tl{font-weight:700;font-size:14px;display:flex;flex-direction:column;justify-content:center}
 .tl small{color:var(--sub);font-size:11px;font-weight:600}
 .tc{display:flex;flex-wrap:wrap;gap:6px;background:#fff;border:1px solid var(--ln);border-radius:12px;padding:8px;min-height:56px;align-content:flex-start}
-.tk{border:1px solid var(--ln);background:var(--soft);color:var(--a);border-radius:10px;padding:6px 10px;font:inherit;display:flex;flex-direction:column;align-items:center;cursor:pointer;min-width:64px}
+.tk{border:1px solid var(--ln);background:var(--soft);color:var(--a);border-radius:10px;padding:6px 8px;font:inherit;display:flex;flex-direction:column;align-items:center;cursor:pointer;flex:1 1 46px;min-width:0}
 .tk b{font-size:14px}.tk span{font-size:12px;color:var(--sub)}
 .tr{margin-top:12px;font-size:13px;color:var(--sub)}
 
 .ip .in em{font-style:normal;font-size:12px;font-weight:600;color:var(--a);margin-left:8px}
 
 .ip{cursor:pointer}
+.sl{display:flex;flex-direction:column;gap:6px}
+.sp{display:flex;align-items:center;gap:10px;padding:10px 14px}
+.sp b{min-width:60px;font-size:15px}
+.sp i{font-style:normal;flex:1;min-width:0;font-size:13px;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp em{font-style:normal;font-size:12px;font-weight:600;color:var(--a);white-space:nowrap}
+.sp>span{font-size:12px;padding:2px 8px;border-radius:999px;background:#f1f3f8;color:#8a93a6;white-space:nowrap}
+.sp>span.on{background:var(--soft);color:var(--a);font-weight:700}
 .sr{padding:10px 0;border-top:1px solid var(--line)}
 .sh{display:flex;justify-content:space-between;font-size:14px}
 .sh span{color:var(--sub);font-size:12px}
@@ -153,7 +160,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
   <div id="p-room" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-room" title="학습지정"></iframe></div>
   <div id="p-hw" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-hw" title="숙제 검사"></iframe></div>
   <div id="p-cls" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="bar" style="padding:12px 22px 0;margin:0"><button class="pill on" data-t="여">여쌤</button><button class="pill" data-t="남">남쌤</button></div><div id="clist"></div></div>
-  <div id="p-info" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="itb"><div class="iv" id="ivb"><button class="pill on" data-v="tt">시간표</button><button class="pill" data-v="ls">명단</button><button class="pill" data-v="ac">계정</button></div><input id="isq" type="search" placeholder="이름 검색" autocomplete="off" style="display:none"><span id="icnt"></span></div><div id="itt"></div><div id="ilist" class="hide"></div><iframe class="fr hide" id="iac" title="학생 계정 관리" style="border-radius:14px;border:1px solid var(--ln)"></iframe></div>
+  <div id="p-info" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="itb"><div class="iv" id="ivb"><button class="pill on" data-v="tt">시간표</button><button class="pill" data-v="ls">명단</button><button class="pill" data-v="sc">성적</button><button class="pill" data-v="ac">계정</button></div><input id="isq" type="search" placeholder="이름 검색" autocomplete="off" style="display:none"><span id="icnt"></span></div><div id="itt"></div><div id="ilist" class="hide"></div><iframe class="fr hide" id="iac" title="학생 계정 관리" style="border-radius:14px;border:1px solid var(--ln)"></iframe></div>
 </main>
 <div id="ov" class="ov hide"></div>
 <script type="module">
@@ -321,12 +328,23 @@ function infoCls(c){return (c.charAt(0)==='M'?'월수 ':c.charAt(0)==='T'?'화�
 function renderInfo(){
   var el=$('ilist'),q=nm($('isq').value||'');
   if(!BOOT){el.innerHTML='';$('icnt').textContent='';return}
+  if(IV==='sc'){renderSCL();return}
   var all=ST.filter(function(s){return !/체험/.test(s.cls||'')});
   var L=all.filter(function(s){return (!q||nm(s.name).indexOf(q)>-1)&&(!IK||s.cls===IK)}).sort(function(a,b){return a.name.localeCompare(b.name,'ko')});
   $('icnt').textContent=IK?(infoCls(IK)+' · '+L.length+'명'):('재원 '+all.length+'명'+(q?' · 검색 '+L.length+'명':''));
   el.innerHTML=L.length?'<div class="ic">'+L.map(function(s){
     var sub=[s.school||'',s.grade||''].filter(Boolean).join(' · ');
     return '<div class="ip" data-n="'+esc(s.name)+'"><div class="in">'+esc(s.name)+'<em>'+esc(infoCls(s.cls))+'</em></div><div class="is">'+(esc(sub)||'학교·학년 미입력')+'</div><div class="ik">'+(s.fri?'<span class="on">금</span>':'')+(s.sat?'<span class="on">토</span>':'')+'<span>아이디 미연결</span>'+scChip(s)+'</div></div>';
+  }).join('')+'</div>':'<div class="empty">표시할 학생이 없습니다</div>';
+}
+function renderSCL(){
+  var el=$('ilist'),q=nm($('isq').value||'');
+  var all=ST.filter(function(s){return !/체험/.test(s.cls||'')});
+  var L=all.filter(function(s){return !q||nm(s.name).indexOf(q)>-1}).sort(function(a,b){return a.name.localeCompare(b.name,'ko')});
+  $('icnt').textContent=q?('검색 '+L.length+'명'):'';
+  el.innerHTML=L.length?'<div class="sl">'+L.map(function(s){
+    var sub=[s.school||'',s.grade||''].filter(Boolean).join(' · ');
+    return '<div class="ip sp" data-n="'+esc(s.name)+'"><b>'+esc(s.name)+'</b><i>'+esc(sub)+'</i><em>'+esc(infoCls(s.cls))+'</em>'+scChip(s)+'</div>';
   }).join('')+'</div>':'<div class="empty">표시할 학생이 없습니다</div>';
 }
 $('isq').oninput=renderInfo;
@@ -346,9 +364,9 @@ $('ilist').onclick=function(e){var c=e.target.closest('.ip');if(!c||!SC)return;s
 var IV='tt',IK='';
 function infoView(){
   document.querySelectorAll('#ivb button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===IV)});
-  $('itt').classList.toggle('hide',IV!=='tt');$('ilist').classList.toggle('hide',IV!=='ls');$('iac').classList.toggle('hide',IV!=='ac');if(IV==='ac'&&!$('iac').getAttribute('src'))$('iac').setAttribute('src','admin.html');
-  $('isq').style.display=IV==='ls'?'':'none';
-  if(IV==='tt')renderTT();else if(IV==='ls'){renderInfo();loadSC()}
+  $('itt').classList.toggle('hide',IV!=='tt');$('ilist').classList.toggle('hide',IV!=='ls'&&IV!=='sc');$('iac').classList.toggle('hide',IV!=='ac');if(IV==='ac'&&!$('iac').getAttribute('src'))$('iac').setAttribute('src','admin.html');
+  $('isq').style.display=(IV==='ls'||IV==='sc')?'':'none';
+  if(IV==='tt')renderTT();else if(IV==='ls'||IV==='sc'){renderInfo();loadSC()}
 }
 function renderTT(){
   var el=$('itt');
