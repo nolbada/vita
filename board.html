@@ -29,10 +29,12 @@ nav .info.on{background:#5B3E96;color:#fff;border-color:#5B3E96}
 nav .mon.on{background:#1E3A6E;color:#fff;border-color:#1E3A6E}
 nav .room.on{background:#B4532A;color:#fff;border-color:#B4532A}
 nav .rec.on{background:#9B2D5A;color:#fff;border-color:#9B2D5A}
+nav .cls.on{background:#1F6F8B;color:#fff;border-color:#1F6F8B}
+body[data-m=cls]{--a:#1F6F8B;--soft:#E3EFF4}
 nav .info.on{background:#5B3E96;color:#fff;border-color:#5B3E96}
 body[data-m=room]{--a:#B4532A;--soft:#FBEADF}
 body[data-m=hw]{--a:#9B2D5A;--soft:#F7E6EE}
-body[data-m=room] main,body[data-m=hw] main{padding:0}
+body[data-m=room] main,body[data-m=hw] main,body[data-m=cls] main{padding:0}
 .fr{flex:1;min-height:0;width:100%;border:0;background:#fff;display:block}
 header{position:relative;z-index:5;flex:none}
 .clk{font-size:15px;color:var(--sub);font-weight:600}
@@ -77,10 +79,11 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 22px 18
 <header>
   <div class="brand">VITA</div>
   <nav>
-    <button class="mon on" data-m="mon">수업현황</button>
+    <button class="mon on" data-m="mon">학습현황</button>
     <button class="room" data-m="room">학습지정</button>
     <button class="rec" data-m="hw">숙제검사</button>
     <button class="info" data-m="info">원생관리</button>
+    <button class="cls" data-m="cls">수업자료</button>
   </nav>
   <div class="clk" id="clk"></div>
 </header>
@@ -92,6 +95,7 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 22px 18
   </div>
   <div id="p-room" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-room" title="학습지정"></iframe></div>
   <div id="p-hw" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-hw" title="숙제 검사"></iframe></div>
+  <div id="p-cls" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="bar" style="padding:12px 22px 0;margin:0"><button class="pill on" data-t="여">여쌤</button><button class="pill" data-t="남">남쌤</button></div><iframe class="fr" id="f-cls" title="수업자료"></iframe><div id="cmsg" class="ph hide">남쌤 수업자료 링크가 등록되면 여기에 열립니다.</div></div>
   <div id="p-info" class="hide ph">원생 관리 화면은 구성 중입니다.<br>명단 관리는 <a href="https://nolbada.github.io/via/roster/">통합 명부</a>에서 계속 사용합니다.</div>
 </main>
 <div id="ov" class="ov hide"></div>
@@ -247,6 +251,13 @@ $('bar').onclick=function(e){
   else if(b.hasAttribute('data-sl')){SL=+b.getAttribute('data-sl');watch()}
 };
 var FRS={room:'room.html?in=1',hw:'/via/hw/'};
+var CLSINIT=0,CLSU={'여':'/via/links/teacher/','남':''};
+function setCls(t){
+  document.querySelectorAll('#p-cls .pill').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-t')===t)});
+  var f=$('f-cls'),u=CLSU[t];
+  if(u){f.classList.remove('hide');$('cmsg').classList.add('hide');if(f.getAttribute('src')!==u)f.setAttribute('src',u)}
+  else{f.classList.add('hide');$('cmsg').classList.remove('hide')}
+}
 function openM(m){
   document.body.setAttribute('data-m',m);
   document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-m')===m)});
@@ -254,6 +265,8 @@ function openM(m){
   $('p-info').classList.toggle('hide',m!=='info');
   $('p-room').classList.toggle('hide',m!=='room');
   $('p-hw').classList.toggle('hide',m!=='hw');
+  $('p-cls').classList.toggle('hide',m!=='cls');
+  if(m==='cls'&&!CLSINIT){CLSINIT=1;setCls('여')}
   if(!BOOT)$('lg').classList.toggle('hide',m!=='mon');
   if(FRS[m]){var f=$('f-'+m);if(!f.getAttribute('src'))f.setAttribute('src',FRS[m])}
   try{history.replaceState(null,'',location.pathname+location.search+(m==='mon'?'':'#'+m))}catch(e){}
@@ -262,7 +275,8 @@ document.querySelector('nav').onclick=function(e){
   var b=e.target.closest('button');if(!b)return;
   openM(b.getAttribute('data-m'));
 };
-(function(){var h=(location.hash||'').replace('#','');if(h==='room'||h==='hw'||h==='info')openM(h)})();
+$('p-cls').onclick=function(e){var b=e.target.closest('.pill');if(b)setCls(b.getAttribute('data-t'))};
+(function(){var h=(location.hash||'').replace('#','');if(h==='room'||h==='hw'||h==='info'||h==='cls')openM(h)})();
 function tick(){var d=new Date();$('clk').textContent=(d.getMonth()+1)+'/'+d.getDate()+'('+DAY[d.getDay()]+') '+hm(d.getTime())}
 tick();setInterval(tick,30000);
 async function boot(){
