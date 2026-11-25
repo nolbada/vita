@@ -123,6 +123,16 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 .tr{margin-top:12px;font-size:13px;color:var(--sub)}
 
 .ip .in em{font-style:normal;font-size:12px;font-weight:600;color:var(--a);margin-left:8px}
+.rt{background:#fff;border:1px solid var(--ln);border-radius:14px;overflow:hidden}
+.rh,.rr{display:grid;grid-template-columns:1.1fr 1.1fr 1.3fr .6fr 1.4fr;gap:8px;padding:11px 18px;align-items:center;font-size:14px}
+.rh{background:var(--soft);color:var(--a);font-weight:700;font-size:13px}
+.rr{border-top:1px solid #eef1f6;cursor:pointer}
+.rr:hover{background:#faf8fd}
+.rr b{font-size:15px}.rr .m{color:var(--sub);font-size:13px}.rr .d{color:var(--sub);font-size:13px}
+.ox{margin-top:22px}.ox h3{font-size:14px;color:var(--sub);margin:0 2px 8px}
+.ox div{display:flex;flex-wrap:wrap;gap:6px}.ox span{font-size:13px;padding:5px 11px;border-radius:999px;background:#eef1f6;color:var(--sub)}
+.ox a,.pop a.lk{display:inline-block;margin-top:10px;font-size:13px;color:var(--a);font-weight:700;text-decoration:none}
+@media(max-width:640px){.rh,.rr{grid-template-columns:1fr 1fr 1.3fr;padding:11px 14px}.rh span:nth-child(3),.rr span:nth-child(3),.rh span:nth-child(4),.rr span:nth-child(4){display:none}}
 
 .ip{cursor:pointer}
 .sr{padding:10px 0;border-top:1px solid var(--line)}
@@ -330,31 +340,42 @@ function setCls(t){
 }
 
 function infoCls(c){return (c.charAt(0)==='M'?'월수 ':c.charAt(0)==='T'?'화목 ':'')+c.replace(/^[MT]/,'')}
+function jdate(s){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s||'');if(!m)return '';var d=new Date(+m[1],+m[2]-1,+m[3]);return m[1]+'.'+m[2]+'.'+m[3]+'('+DAY[d.getDay()]+')'}
 function renderInfo(){
   var el=$('ilist'),q=nm($('isq').value||'');
   if(!BOOT){el.innerHTML='';$('icnt').textContent='';return}
   var all=ST.filter(function(s){return !/체험/.test(s.cls||'')});
   var L=all.filter(function(s){return (!q||nm(s.name).indexOf(q)>-1)&&(!IK||s.cls===IK)}).sort(function(a,b){return a.name.localeCompare(b.name,'ko')});
-  $('icnt').textContent=IK?(infoCls(IK)+' · '+L.length+'명'):('재원 '+all.length+'명'+(q?' · 검색 '+L.length+'명':''));
-  el.innerHTML=L.length?'<div class="ic">'+L.map(function(s){
-    var sub=[s.school||'',s.grade||''].filter(Boolean).join(' · ');
-    return '<div class="ip" data-n="'+esc(s.name)+'"><div class="in">'+esc(s.name)+'<em>'+esc(infoCls(s.cls))+'</em></div><div class="is">'+(esc(sub)||'학교·학년 미입력')+'</div><div class="ik">'+(s.fri?'<span class="on">금</span>':'')+(s.sat?'<span class="on">토</span>':'')+'<span>아이디 미연결</span>'+scChip(s)+'</div></div>';
-  }).join('')+'</div>':'<div class="empty">표시할 학생이 없습니다</div>';
+  $('icnt').textContent=IK?(infoCls(IK)+' · '+L.length+'명'):'';
+  var h='';
+  if(L.length){
+    h='<div class="rt"><div class="rh"><span>이름</span><span>반</span><span>학교 · 학년</span><span>요일</span><span>입회일</span></div>'+L.map(function(s){
+      var sub=[s.school||'',s.grade||''].filter(Boolean).join(' · ');
+      var jd=SC?jdate(JN[nm(s.name)]):'';
+      return '<div class="rr" data-n="'+esc(s.name)+'"><span><b>'+esc(s.name)+'</b></span><span class="m">'+esc(infoCls(s.cls))+'</span><span class="m">'+(esc(sub)||'-')+'</span><span class="m">'+(s.fri?'금':'')+(s.sat?(s.fri?' ':'')+'토':'')+'</span><span class="d">'+(SC?(jd||'-'):'')+'</span></div>';
+    }).join('')+'</div>';
+  }else h='<div class="empty">표시할 학생이 없습니다</div>';
+  if(!IK&&!q&&OFFL.length)h+='<div class="ox"><h3>퇴원명단</h3><div>'+OFFL.map(function(n){return '<span>'+esc(n)+'</span>'}).join('')+'</div><a href="/via/roster/" target="_blank" rel="noopener">퇴원 처리 · 복귀 · 반 이동은 명단 관리</a></div>';
+  el.innerHTML=h;
 }
 $('isq').oninput=renderInfo;
 
-var SC=null,SCL=0,SCE=0;
+var SC=null,SCL=0,SCE=0,JN={},OFFL=[];
 function scChip(s){if(SCE)return '<span>성적표 읽기 실패</span>';if(!SC)return '<span>성적표 확인 중</span>';var a=SC[nm(s.name)];return a?(a.length?'<span class="on">성적 '+a.length+'건</span>':'<span>성적 없음</span>'):'<span>성적표 미연결</span>'}
-async function loadSC(){if(SC||SCL)return;SCL=1;try{var s=await getDocs(collection(db,'sc')),o={};s.docs.forEach(function(x){var d=x.data();o[nm(d.name)]=d.rec||[]});SC=o}catch(e){SCE=1}renderInfo()}
+async function loadSC(){if(SC||SCL)return;SCL=1;try{var s=await getDocs(collection(db,'sc')),o={};s.docs.forEach(function(x){var d=x.data();o[nm(d.name)]=d.rec||[];JN[nm(d.name)]=d.joined||''});SC=o}catch(e){SCE=1}renderInfo()}
 function showSC(name){
   var a=((SC&&SC[nm(name)])||[]).slice().sort(function(x,y){return String(y.d||'').localeCompare(String(x.d||''))});
-  $('ov').innerHTML='<div class="pop"><h2>'+esc(name)+'</h2><div class="tg">성적 '+a.length+'건</div>'+(a.map(function(e){
+  var s=ST.filter(function(o){return nm(o.name)===nm(name)})[0]||{};
+  var sub=[s.school||'',s.grade||''].filter(Boolean).join(' · ');
+  var jd=jdate(JN[nm(name)]);
+  var meta=[s.cls?infoCls(s.cls):'',sub,jd?('입회 '+jd):''].filter(Boolean).join('  ·  ');
+  $('ov').innerHTML='<div class="pop"><h2>'+esc(name)+'</h2><div class="tg">'+esc(meta)+'</div><div class="tg" style="margin-top:10px">성적 '+a.length+'건</div>'+(a.map(function(e){
     var rt=e.r||Object.keys(e.v||{}).map(function(k){return k+' '+e.v[k]}).join(' · ');
     return '<div class="sr"><div class="sh"><b>'+esc(e.t||'')+'</b><span>'+esc(e.d||'')+'</span></div><div class="sb">'+esc(rt)+'</div>'+(e.m?'<div class="sm">'+esc(e.m)+'</div>':'')+'</div>';
-  }).join('')||'<div class="tg">기록 없음</div>')+'</div>';
+  }).join('')||'<div class="tg">기록 없음</div>')+'<a class="lk" href="/via/roster/" target="_blank" rel="noopener">퇴원 처리 · 반 이동은 명단 관리</a></div>';
   $('ov').classList.remove('hide');
 }
-$('ilist').onclick=function(e){var c=e.target.closest('.ip');if(!c||!SC)return;showSC(c.getAttribute('data-n'))};
+$('ilist').onclick=function(e){var c=e.target.closest('.rr');if(!c||!SC)return;showSC(c.getAttribute('data-n'))};
 var IV='tt',IK='';
 function infoView(){
   document.querySelectorAll('#ivb button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===IV)});
@@ -409,6 +430,7 @@ function tick(){var d=new Date();$('clk').textContent=(d.getMonth()+1)+'/'+d.get
 tick();setInterval(tick,30000);
 async function boot(){
   var s=await getDoc(doc(db,'hw_c','master'));var d=JSON.parse(s.data().j);
+  OFFL=d.s.filter(function(o){return o.status!=='on'}).map(function(o){return o.name}).sort(function(a,b){return a.localeCompare(b,'ko')});
   ST=d.s.filter(function(o){return o.status==='on'}).map(function(o){return {id:o.id,name:o.name,cls:o.cls,grade:o.grade||'',school:o.school||'',fri:!!o.fri,sat:!!o.sat}});
   try{var t=await getDoc(doc(db,'board','2000-01-05|_시간표'));var j=JSON.parse(t.data().chk);TT=JSON.parse(j.tt.j).t||{}}catch(e){TT={}}
   M=(/[?&]m=(fri|mkp)/.exec(location.search)||[])[1]||defMode();var sl=slots();SL=nowSlot(sl);
