@@ -101,6 +101,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 #p-info .itb{display:flex;align-items:center;gap:10px;margin:0 0 10px}
 #isq{flex:1;min-width:0;height:42px;border:1px solid var(--ln);border-radius:12px;padding:0 14px;font:inherit;font-size:15px;background:#fff;color:var(--ink)}
 #ov .lgr{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}#ov .lgr select,#ov .lgr input{font:inherit;font-size:14px;height:38px;border:1px solid var(--ln);border-radius:10px;padding:0 8px;background:#fff}#ov #lgx{width:100%;font:inherit;font-size:14px;border:1px solid var(--ln);border-radius:10px;padding:8px;resize:vertical}#ov .lgb{font:inherit;font-weight:700;height:38px;border-radius:10px;border:0;padding:0 16px;background:var(--a);color:#fff;cursor:pointer}.lgdel{font:inherit;font-size:12px;color:#B3261E;background:none;border:0;cursor:pointer;padding:4px 0}#icn{flex:1;min-height:0;overflow-y:auto;padding-bottom:12px}.cnr{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:10px 14px;margin-bottom:8px;cursor:pointer}.cnr .sh{display:flex;gap:8px;align-items:baseline}.cnr .sh span,.cnr .sh i{font-size:13px;color:var(--sub);font-style:normal}.cnr .sb{font-size:14px;margin-top:4px;white-space:pre-wrap}
+.pc{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:9px;font-size:11px;font-weight:700;vertical-align:middle}.pc.g{background:#DDF3E4;color:#1B6B3A}.pc.o{background:#FFE9D2;color:#B35A00}.rc{font-size:12px;color:#5a6b7a;margin-top:3px;line-height:1.35}
 #hcb{order:3;flex:none;padding:6px 12px;font-size:13px}
 #icnt{font-size:14px;font-weight:700;color:var(--a);white-space:nowrap}
 #ilist{flex:1;min-height:0;overflow-y:auto;padding-bottom:12px}
@@ -241,17 +242,51 @@ function nowSlot(sl){
 }
 function offOf(){return M==='reg2'?100:0}
 function dkey(){return M==='reg2'?'reg':M}
+var BDT={},BDP={};
+function bdParse(sn){if(!sn.exists())return {};var c={};try{c=JSON.parse(sn.data().chk||'{}')}catch(e){}return c.app||{}}
+function bdRec(A,k){try{var o=A&&A[k];return o?(typeof o==='string'?JSON.parse(o):o):null}catch(e){return null}}
+function okBd(o){return !!o&&(+o.s>0||+o.n>0||!!o.w)}
+function prevIso(){var q=isoToday().split('-'),d=new Date(+q[0],+q[1]-1,+q[2]-1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function bdPrev(s){var iso=prevIso(),k=iso+'|'+s.id;if(k in BDP)return;BDP[k]=null;getDoc(doc(db,'board',iso+'|'+s.name)).then(function(sn){BDP[k]=bdParse(sn);render()}).catch(function(){})}
+function recTs(iso,t){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso),h=/^(\d+):(\d+)/.exec(t||'');if(!m||!h)return 0;return new Date(+m[1],+m[2]-1,+m[3],+h[1],+h[2]).getTime()}
+function mdw(iso){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);if(!m)return '';var d=new Date(+m[1],+m[2]-1,+m[3]);return (d.getMonth()+1)+'/'+d.getDate()+'('+DAY[d.getDay()]+')'}
+function preBd(s){
+  var pv=prevIso(),a=bdRec(BDP[pv+'|'+s.id],'a_bd');
+  if(okBd(a))return {w:a.w||'',t:a.t||'',d:pv};
+  var st=(TT[s.cls]||{}).s||'',b=bdRec(BDT[s.id],'a_bd');
+  if(okBd(b)&&st&&b.t&&b.t<st)return {w:b.w||'',t:b.t||'',d:isoToday()};
+  return null;
+}
+function autoOf(s,c){
+  if(M!==defMode())return null;
+  var A=BDT[s.id]||{},today=isoToday(),lines=[],ts=0,o;
+  if(/^bd-/.test(c)){
+    var p=preBd(s);if(p){lines.push('수업 전 '+mdw(p.d)+' '+p.t+' · '+p.w);ts=recTs(p.d,p.t)}
+    o=bdRec(A,'a_bd');if(okBd(o)&&!(p&&p.d===today)){lines.push('오늘 '+(o.t||'')+' · '+(o.w||''));ts=recTs(today,o.t)||ts}
+    return lines.length?{lines:lines,ts:ts}:null;
+  }
+  var key=/^vs-/.test(c)?'l_v'+c.slice(3):(/^m[12]$/.test(c)?'l_'+c:(/^rd-/.test(c)?'l_rd_'+c.slice(3):''));
+  if(!key)return null;
+  o=bdRec(A,key);if(!o)return null;
+  lines.push((o.t||'')+' · '+(o.w||''));ts=recTs(today,o.t);
+  if(/^rd-/.test(c)){var e=bdRec(A,key+'_exit');if(e)lines.push((e.t||'')+' · '+(e.w||''))}
+  return {lines:lines,ts:ts};
+}
+function chipOf(s){
+  var x=DATA[s.id];if(M!==defMode()||!x||!(x.items||[]).some(function(it){return /^bd-/.test(it.c||'')}))return '';
+  var p=preBd(s);return '<span class="pc '+(p?'g':'o')+'">'+(p?'수업 전 기록':'수업 전 없음')+'</span>'
+}
 function info(id){
-  var x=DATA[id];if(!x)return null;
+  var x=DATA[id];if(!x)return null;var st0=ST.filter(function(q){return q.id===id})[0];
   var items=x.items||[],o=offOf(),ws=wkStart(),rows=[],rq=0,dn=0;
   items.forEach(function(it,i){
-    var t=x.done&&x.done[i+o],d=!!t&&t>=ws&&(!OFF||t<=dayEnd()),op=isOpt(it);
-    rows.push({n:it.n,t:it.t||'',d:d,o:op,at:d?t:0});
+    var t=x.done&&x.done[i+o],d=!!t&&t>=ws&&(!OFF||t<=dayEnd()),op=isOpt(it),au=st0?autoOf(st0,it.c||''):null;if(au&&!d){d=true;t=au.ts||dayStart()}
+    rows.push({n:it.n,t:it.t||'',d:d,o:op,at:d?t:0,ex:au?au.lines:null});
     if(!op){rq++;if(d)dn++}
   });
   var ls=0;if(OFF){rows.forEach(function(r){if(r.at>=dayStart()&&r.at>ls)ls=r.at})}else if(x.t&&x.t>=dayStart())ls=x.t;return {rows:rows,rq:rq,dn:dn,last:ls};
 }
-function unsub(){UN.forEach(function(f){try{f()}catch(e){}});UN=[];Object.keys(FS).forEach(function(k){try{FS[k]()}catch(e){}});FS={};DATA={}}
+function unsub(){UN.forEach(function(f){try{f()}catch(e){}});UN=[];Object.keys(FS).forEach(function(k){try{FS[k]()}catch(e){}});FS={};DATA={};BDT={}}
 function watchHw(){if(UH)return;UH=onSnapshot(doc(db,'hw_w',wkSat()),function(sn){HWR=(sn.exists()&&sn.data().r)||{};render()},function(){HWR={}})}
 function watch(){
   unsub();
@@ -259,7 +294,7 @@ function watch(){
   var sl=slots();if(!sl.length&&!MY.length)return render();
   var cls=MY.length?MY:(sl[SL]||sl[0]).c;
   ST.filter(function(s){return cls.indexOf(s.cls)>-1}).forEach(function(s){
-    UN.push(onSnapshot(doc(db,'vday',s.id,'days',dkey()),function(sn){DATA[s.id]=sn.exists()?sn.data():null;render()},function(){DATA[s.id]=null;render()}));
+    UN.push(onSnapshot(doc(db,'vday',s.id,'days',dkey()),function(sn){DATA[s.id]=sn.exists()?sn.data():null;render()},function(){DATA[s.id]=null;render()}));UN.push(onSnapshot(doc(db,'board',isoToday()+'|'+s.name),function(sn){BDT[s.id]=bdParse(sn);render()},function(){BDT[s.id]={};render()}));bdPrev(s);
   });
   watchHw();render();
 }
@@ -344,13 +379,13 @@ function render(){
     var f=info(s.id)||{rows:[],rq:0,dn:0,last:0,none:1},segs='',k=0,h=hwOf(s.id),ht='주간 숙제 기록 없음',hx=false;
     if(h&&h.all){var p=[];if(h.O)p.push('O '+h.O);if(h.T)p.push('\u25B3 '+h.T);if(h.X){p.push('X '+h.X);hx=true}ht='주간 숙제 '+p.join(' \u00B7 ')}
     f.rows.forEach(function(x){if(x.o)return;segs+='<i class="'+(x.d?'d':'')+'"></i>'});
-    return '<button class="st'+(f.rq&&f.dn===f.rq?' full':'')+(hx?' hx':'')+'" data-id="'+s.id+'"><div><div class="n">'+esc(s.name)+'</div><div class="tg">'+esc(s.cls.replace(/^[MT]/,''))+'</div><div class="hw'+(hx?' x':'')+'">'+ht+'</div></div><div><div class="seg">'+segs+'</div><div class="ft"><b>'+(f.none?'시작 전':f.dn+' / '+f.rq)+'</b><span>'+(f.last?hm(f.last):'')+'</span></div></div></button>';
+    return '<button class="st'+(f.rq&&f.dn===f.rq?' full':'')+(hx?' hx':'')+'" data-id="'+s.id+'"><div><div class="n">'+esc(s.name)+'</div><div class="tg">'+esc(s.cls.replace(/^[MT]/,''))+chipOf(s)+'</div><div class="hw'+(hx?' x':'')+'">'+ht+'</div></div><div><div class="seg">'+segs+'</div><div class="ft"><b>'+(f.none?'시작 전':f.dn+' / '+f.rq)+'</b><span>'+(f.last?hm(f.last):'')+'</span></div></div></button>';
   }).join('');
 }
 $('grid').onclick=function(e){
   var b=e.target.closest('.st');if(!b)return;
   var s=ST.filter(function(x){return x.id===b.getAttribute('data-id')})[0];if(!s)return;var f=info(s.id);if(!f)return;
-  $('ov').innerHTML='<div class="pop"><h2>'+esc(s.name)+'</h2><div class="tg">'+f.dn+' / '+f.rq+(f.last?' · 마지막 '+hm(f.last):'')+'</div>'+f.rows.map(function(x){return '<div class="it'+(x.d?' d':'')+(x.o?' o':'')+'"><div class="ck">'+(x.d?'&#10003;':'')+'</div><div><div class="nm">'+esc(x.n)+'</div><div class="tg" style="margin:0">'+esc(x.t)+'</div></div><div class="tm">'+(x.at?hm(x.at):'')+'</div></div>'}).join('')+'</div>';
+  $('ov').innerHTML='<div class="pop"><h2>'+esc(s.name)+'</h2><div class="tg">'+f.dn+' / '+f.rq+(f.last?' · 마지막 '+hm(f.last):'')+'</div>'+f.rows.map(function(x){return '<div class="it'+(x.d?' d':'')+(x.o?' o':'')+'"><div class="ck">'+(x.d?'&#10003;':'')+'</div><div><div class="nm">'+esc(x.n)+'</div><div class="tg" style="margin:0">'+esc(x.t)+'</div>'+(x.ex?x.ex.map(function(l){return '<div class="rc">'+esc(l)+'</div>'}).join(''):'')+'</div><div class="tm">'+(x.at?hm(x.at):'')+'</div></div>'}).join('')+'</div>';
   $('ov').classList.remove('hide');
 };
 $('ov').onclick=function(e){var t=e.target;if(t===$('ov')){$('ov').classList.add('hide');return}
