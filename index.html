@@ -104,6 +104,7 @@ input:focus{outline:2px solid var(--main);border-color:transparent}
 <section id="home" class="hide">
   <div class="top">
     <div><div class="date" id="dt"></div><h1 id="hi"></h1></div>
+    <button class="btn" id="out2" style="width:auto;margin:0;padding:12px 18px;white-space:nowrap">저장하고 나가기</button>
   </div>
   <div id="hwbox"></div>
   <div class="tabs" id="tabs"></div>
@@ -111,7 +112,7 @@ input:focus{outline:2px solid var(--main);border-color:transparent}
   <div class="sh">이번 주 스탬프</div>
   <div class="stp" id="stamps"></div>
   <div class="foot">
-    <button class="btn ghost" id="out">목록으로</button>
+    <button class="btn" id="out">저장하고 나가기</button>
   </div>
 </section>
 
@@ -253,18 +254,18 @@ $('cards').onclick=async function(e){
     return;
   }
   if(isDone)return;
-  if(it.u)window.open(lk(it.u,k,i),'_blank');
   if(!x.start){
     u.start=now;u.t=now;
     try{await updateDoc(doc(db,'vday',uid,'days',d0),u);x.start=now;x.t=now}catch(er){}
   }
+  if(it.u)location.href=lk(it.u,k,i);
 };
 function lk(u,k,i){if(!/\/via\/vsignal-[ke]\//.test(u))return u;return u+(u.indexOf('?')<0?'?':'&')+'vd='+k+'&vi='+i}
 var lastLd=0;
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&uid&&Date.now()-lastLd>20000){lastLd=Date.now();load().catch(function(){})}});
 $('tabs').onclick=function(e){var b=e.target.closest('button');if(!b)return;CUR=b.getAttribute('data-t');render()};
 $('stamps').onclick=function(e){var b=e.target.closest('button');if(!b)return;CUR=b.getAttribute('data-s');render();window.scrollTo(0,0)};
-$('out').onclick=async function(){CUR='';try{await signOut(auth)}catch(e){}$('pw').value='';$('nm').value='';me='';uid='';D={};show('login')};
+$('out').onclick=$('out2').onclick=async function(){CUR='';try{await signOut(auth)}catch(e){}$('pw').value='';$('nm').value='';me='';uid='';D={};var b=document.createElement('div');b.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;background:#fff;z-index:99;display:flex;align-items:center;justify-content:center;text-align:center;font-size:24px;font-weight:700;padding:30px;line-height:1.6';b.innerHTML='저장됐습니다.<br>다음 친구에게 넘겨 주세요';document.body.appendChild(b);show('login');setTimeout(function(){b.remove()},1800)};
 ['nm','pw'].forEach(function(i){$(i).addEventListener('keydown',function(e){if(e.key==='Enter')$('go1').click()})});
 onAuthStateChanged(auth,async function(u){
   if(u&&!uid&&!busy&&u.displayName){uid=u.uid;me=u.displayName;try{await load()}catch(e){}}
