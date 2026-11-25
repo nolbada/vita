@@ -153,7 +153,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
   <div id="p-room" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-room" title="학습지정"></iframe></div>
   <div id="p-hw" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-hw" title="숙제 검사"></iframe></div>
   <div id="p-cls" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="bar" style="padding:12px 22px 0;margin:0"><button class="pill on" data-t="여">여쌤</button><button class="pill" data-t="남">남쌤</button></div><div id="clist"></div></div>
-  <div id="p-info" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="itb"><div class="iv" id="ivb"><button class="pill on" data-v="tt">시간표</button><button class="pill" data-v="ls">명단</button><button class="pill" data-v="sc">성적</button><button class="pill" data-v="ac">계정</button></div><input id="isq" type="search" placeholder="이름 검색" autocomplete="off" style="display:none"><span id="icnt"></span></div><div id="itt"></div><div id="ilist" class="hide"></div><iframe class="fr hide" id="iac" title="학생 계정 관리" style="border-radius:14px;border:1px solid var(--ln)"></iframe><iframe class="fr hide" id="isc" title="성적" style="border-radius:14px;border:1px solid var(--ln)"></iframe></div>
+  <div id="p-info" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="itb"><div class="iv" id="ivb"><button class="pill on" data-v="tt">시간표</button><button class="pill" data-v="ls">명단</button><button class="pill" data-v="sc">성적</button><button class="pill" data-v="ac">계정</button><button class="pill" data-v="at">출석부</button></div><input id="isq" type="search" placeholder="이름 검색" autocomplete="off" style="display:none"><span id="icnt"></span></div><div id="itt"></div><div id="ilist" class="hide"></div><iframe class="fr hide" id="iac" title="학생 계정 관리" style="border-radius:14px;border:1px solid var(--ln)"></iframe><iframe class="fr hide" id="isc" title="성적" style="border-radius:14px;border:1px solid var(--ln)"></iframe><iframe class="fr hide" id="iat" title="출석부" style="border-radius:14px;border:1px solid var(--ln)"></iframe></div>
 </main>
 <div id="ov" class="ov hide"></div>
 <script type="module">
@@ -358,7 +358,7 @@ $('ilist').onclick=function(e){var c=e.target.closest('.ip');if(!c||!SC)return;s
 var IV='tt',IK='';
 function infoView(){
   document.querySelectorAll('#ivb button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===IV)});
-  $('itt').classList.toggle('hide',IV!=='tt');$('ilist').classList.toggle('hide',IV!=='ls');$('iac').classList.toggle('hide',IV!=='ac');if(IV==='ac'&&!$('iac').getAttribute('src'))$('iac').setAttribute('src','admin.html');$('isc').classList.toggle('hide',IV!=='sc');if(IV==='sc'&&!$('isc').getAttribute('src'))$('isc').setAttribute('src','/board/hq/score/');
+  $('itt').classList.toggle('hide',IV!=='tt');$('ilist').classList.toggle('hide',IV!=='ls');$('iac').classList.toggle('hide',IV!=='ac');if(IV==='ac'&&!$('iac').getAttribute('src'))$('iac').setAttribute('src','admin.html');$('isc').classList.toggle('hide',IV!=='sc');if(IV==='sc'&&!$('isc').getAttribute('src'))$('isc').setAttribute('src','/board/hq/score/');$('iat').classList.toggle('hide',IV!=='at');if(IV==='at'&&!$('iat').getAttribute('src'))$('iat').setAttribute('src','/via/attend/');
   $('isq').style.display=IV==='ls'?'':'none';
   if(IV==='tt')renderTT();else if(IV==='ls'){renderInfo();loadSC()}
 }
