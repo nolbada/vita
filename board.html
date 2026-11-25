@@ -26,8 +26,19 @@ nav{display:flex;gap:8px;flex:1}
 nav a,nav button{font:inherit;font-size:15px;font-weight:700;padding:9px 20px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--sub);text-decoration:none;cursor:pointer}
 nav .mon.on{background:#1E3A6E;color:#fff;border-color:#1E3A6E}
 nav .info.on{background:#5B3E96;color:#fff;border-color:#5B3E96}
-nav .rec{color:#1E3A6E;border-color:#c9d5ec;background:#f1f5fc}
+nav .mon{color:#1E3A6E;border-color:#c9d5ec;background:#f1f5fc}
 nav .room{color:#B4532A;border-color:#f0d3c3;background:#fdf4ee}
+nav .rec{color:#9B2D5A;border-color:#ecc9d8;background:#fbf0f4}
+nav .info{color:#5B3E96;border-color:#d9cdee;background:#f6f2fb}
+nav .mon.on{background:#1E3A6E;color:#fff;border-color:#1E3A6E}
+nav .room.on{background:#B4532A;color:#fff;border-color:#B4532A}
+nav .rec.on{background:#9B2D5A;color:#fff;border-color:#9B2D5A}
+nav .info.on{background:#5B3E96;color:#fff;border-color:#5B3E96}
+body[data-m=room]{--a:#B4532A;--soft:#FBEADF}
+body[data-m=hw]{--a:#9B2D5A;--soft:#F7E6EE}
+body[data-m=room] main,body[data-m=hw] main{padding:0}
+.fr{flex:1;min-height:0;width:100%;border:0;background:#fff;display:block}
+header{position:relative;z-index:5;flex:none}
 .clk{font-size:15px;color:var(--sub);font-weight:600}
 main{flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 22px 18px}
 .bar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
@@ -71,8 +82,8 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 22px 18
   <div class="brand">VITA</div>
   <nav>
     <button class="mon on" data-m="mon">모니터링</button>
-    <a class="room" href="room.html">자료실</a>
-    <a class="rec" href="https://nolbada.github.io/via/hw/">숙제 검사</a>
+    <button class="room" data-m="room">자료실</button>
+    <button class="rec" data-m="hw">숙제 검사</button>
     <button class="info" data-m="info">학생 정보</button>
   </nav>
   <div class="clk" id="clk"></div>
@@ -83,6 +94,8 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 22px 18
     <div class="bar" id="bar"></div>
     <div class="grid" id="grid"></div>
   </div>
+  <div id="p-room" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-room" title="자료실"></iframe></div>
+  <div id="p-hw" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-hw" title="숙제 검사"></iframe></div>
   <div id="p-info" class="hide ph">학생 정보 화면은 구성 중입니다.<br>명단 관리는 <a href="https://nolbada.github.io/via/roster/">통합 명부</a>에서 계속 사용합니다.</div>
 </main>
 <div id="ov" class="ov hide"></div>
@@ -237,12 +250,23 @@ $('bar').onclick=function(e){
   else if(b.hasAttribute('data-rm')){RM=b.getAttribute('data-rm');render()}
   else if(b.hasAttribute('data-sl')){SL=+b.getAttribute('data-sl');watch()}
 };
+var FRS={room:'room.html?in=1',hw:'/via/hw/'};
+function openM(m){
+  document.body.setAttribute('data-m',m);
+  document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-m')===m)});
+  $('p-mon').classList.toggle('hide',m!=='mon'||!BOOT);
+  $('p-info').classList.toggle('hide',m!=='info');
+  $('p-room').classList.toggle('hide',m!=='room');
+  $('p-hw').classList.toggle('hide',m!=='hw');
+  if(!BOOT)$('lg').classList.toggle('hide',m!=='mon');
+  if(FRS[m]){var f=$('f-'+m);if(!f.getAttribute('src'))f.setAttribute('src',FRS[m])}
+  try{history.replaceState(null,'',location.pathname+location.search+(m==='mon'?'':'#'+m))}catch(e){}
+}
 document.querySelector('nav').onclick=function(e){
   var b=e.target.closest('button');if(!b)return;
-  var m=b.getAttribute('data-m');document.body.setAttribute('data-m',m);
-  document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('on',x===b)});
-  $('p-mon').classList.toggle('hide',m!=='mon'||!BOOT);$('p-info').classList.toggle('hide',m!=='info');
+  openM(b.getAttribute('data-m'));
 };
+(function(){var h=(location.hash||'').replace('#','');if(h==='room'||h==='hw'||h==='info')openM(h)})();
 function tick(){var d=new Date();$('clk').textContent=(d.getMonth()+1)+'/'+d.getDate()+'('+DAY[d.getDay()]+') '+hm(d.getTime())}
 tick();setInterval(tick,30000);
 async function boot(){
@@ -250,7 +274,7 @@ async function boot(){
   ST=d.s.filter(function(o){return o.status==='on'}).map(function(o){return {id:o.id,name:o.name,cls:o.cls}});
   try{var t=await getDoc(doc(db,'board','2000-01-05|_시간표'));var j=JSON.parse(t.data().chk);TT=JSON.parse(j.tt.j).t||{}}catch(e){TT={}}
   M=(/[?&]m=(fri|reg|reg2|mkp)/.exec(location.search)||[])[1]||defMode();var sl=slots();SL=nowSlot(sl);
-  BOOT=true;$('lg').classList.add('hide');$('p-mon').classList.remove('hide');watch();
+  BOOT=true;$('lg').classList.add('hide');if(document.body.getAttribute('data-m')==='mon')$('p-mon').classList.remove('hide');watch();
 }
 $('gl').onclick=async function(){
   try{await signInWithPopup(auth,new GoogleAuthProvider())}
