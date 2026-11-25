@@ -239,6 +239,7 @@ function drawPantry(){
   $('cc').innerHTML=C.chips.map(function(c){return '<button data-c="'+esc(c[0])+'" class="'+(CHIP===c[0]?'on':'')+'">'+esc(c[0])+'</button>'}).join('');
   var h='',n=0;
   C.cat.forEach(function(g){
+    if((TAB==='ref')!==(g.g==='문법'))return;
     var ch=C.chips.filter(function(c){return c[0]===CHIP})[0];
     if(CHIP!=='전체'&&!(ch&&ch[1]&&ch[1].indexOf(g.g)>-1))return;
     if(g.items.length>1){h+='<div class="pi"><div><b>'+esc(g.g)+'</b><small>단계 '+g.items.length+'개 중 선택</small></div><button class="add" data-g="'+esc(g.g)+'"'+(cur()?'':' disabled')+'>담기</button></div>';return}
