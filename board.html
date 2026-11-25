@@ -30,6 +30,7 @@ nav .mon.on{background:#1E3A6E;color:#fff;border-color:#1E3A6E}
 nav .room.on{background:#B4532A;color:#fff;border-color:#B4532A}
 nav .rec.on{background:#9B2D5A;color:#fff;border-color:#9B2D5A}
 nav .cls.on{background:#1F6F8B;color:#fff;border-color:#1F6F8B}
+#clist{flex:1;overflow:auto;padding:14px 22px 22px}.cg{margin:0 0 18px}.cg h3{margin:0 0 8px;font-size:15px;color:#1F6F8B}.cr{display:flex;flex-wrap:wrap;gap:10px}.cl{display:flex;align-items:center;justify-content:center;min-width:150px;height:52px;padding:0 20px;border-radius:12px;background:#E3EFF4;color:#14495c;font-weight:700;font-size:16px;text-decoration:none;border:1px solid #bcd7e1}.cl:active{background:#1F6F8B;color:#fff}
 body[data-m=cls]{--a:#1F6F8B;--soft:#E3EFF4}
 nav .info.on{background:#5B3E96;color:#fff;border-color:#5B3E96}
 body[data-m=room]{--a:#B4532A;--soft:#FBEADF}
@@ -82,7 +83,7 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 22px 18
     <button class="mon on" data-m="mon">학습현황</button>
     <button class="room" data-m="room">학습지정</button>
     <button class="rec" data-m="hw">숙제검사</button>
-    <button class="info" data-m="info">원생관리</button>
+    <button class="info" data-m="info">학생정보</button>
     <button class="cls" data-m="cls">수업자료</button>
   </nav>
   <div class="clk" id="clk"></div>
@@ -95,7 +96,7 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 22px 18
   </div>
   <div id="p-room" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-room" title="학습지정"></iframe></div>
   <div id="p-hw" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-hw" title="숙제 검사"></iframe></div>
-  <div id="p-cls" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="bar" style="padding:12px 22px 0;margin:0"><button class="pill on" data-t="여">여쌤</button><button class="pill" data-t="남">남쌤</button></div><iframe class="fr" id="f-cls" title="수업자료"></iframe><div id="cmsg" class="ph hide">남쌤 수업자료 링크가 등록되면 여기에 열립니다.</div></div>
+  <div id="p-cls" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="bar" style="padding:12px 22px 0;margin:0"><button class="pill on" data-t="여">여쌤</button><button class="pill" data-t="남">남쌤</button></div><div id="clist"></div></div>
   <div id="p-info" class="hide ph">원생 관리 화면은 구성 중입니다.<br>명단 관리는 <a href="https://nolbada.github.io/via/roster/">통합 명부</a>에서 계속 사용합니다.</div>
 </main>
 <div id="ov" class="ov hide"></div>
@@ -252,11 +253,12 @@ $('bar').onclick=function(e){
 };
 var FRS={room:'room.html?in=1',hw:'/via/hw/'};
 var CLSINIT=0,CLSU={'여':'/via/links/teacher/','남':''};
+var CLSL=[["여","비단챌","기본","/via/bidanchael/gibon/"],["여","비단챌","발전","/via/bidanchael/baljeon/"],["여","비단챌","심화","/via/bidanchael/simhwa/"],["여","비단챌","고교","/via/bidanchael/gogyo/"],["여","비단챌","보충","/via/bidanchael/bochung/"],["여","V시그널","K","/via/vsignal-k/"],["여","V시그널","E","/via/vsignal-e/"],["여","V시그널","Y","/via/vsignal-y/"],["여","FBI","고1 9월","/via/fbi/g1-9-class/"],["여","FBI","고2 6월","/via/fbi/g2-6-class/"],["여","데일리보카","B","/via/daily/b/"],["여","데일리보카","H","/via/daily/h/"],["여","데일리보카","M","/via/daily/m/"],["여","독해","M1 리딩","/via/m1-reading/"],["여","독해","독해 33권","/via/reading/"],["여","대화문 기출","중1","/via/gichul/m1/"],["여","대화문 기출","중2","/via/gichul/m2/"],["남","문법","해커스 제대로 어법","/via/eobeop-jedaero/"]];
 function setCls(t){
   document.querySelectorAll('#p-cls .pill').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-t')===t)});
-  var f=$('f-cls'),u=CLSU[t];
-  if(u){f.classList.remove('hide');$('cmsg').classList.add('hide');if(f.getAttribute('src')!==u)f.setAttribute('src',u)}
-  else{f.classList.add('hide');$('cmsg').classList.remove('hide')}
+  var g={},o=[];CLSL.forEach(function(r){if(r[0]!==t)return;if(!g[r[1]]){g[r[1]]=[];o.push(r[1])}g[r[1]].push(r)});
+  var h='';o.forEach(function(k){h+='<div class="cg"><h3>'+k+'</h3><div class="cr">'+g[k].map(function(r){return '<a class="cl" target="_blank" rel="noopener" href="'+r[3]+'">'+r[2]+'</a>'}).join('')+'</div></div>'});
+  $('clist').innerHTML=h||'<div class="ph">등록된 수업자료 없음</div>';
 }
 function openM(m){
   document.body.setAttribute('data-m',m);
