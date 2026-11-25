@@ -355,7 +355,6 @@ function renderInfo(){
       return '<div class="rr" data-n="'+esc(s.name)+'"><span><b>'+esc(s.name)+'</b></span><span class="m">'+esc(infoCls(s.cls))+'</span><span class="m">'+(esc(sub)||'-')+'</span><span class="m">'+(s.fri?'금':'')+(s.sat?(s.fri?' ':'')+'토':'')+'</span><span class="d">'+(SC?(jd||'-'):'')+'</span></div>';
     }).join('')+'</div>';
   }else h='<div class="empty">표시할 학생이 없습니다</div>';
-  if(!IK&&!q&&OFFL.length)h+='<div class="ox"><h3>퇴원명단</h3><div>'+OFFL.map(function(n){return '<span>'+esc(n)+'</span>'}).join('')+'</div><a href="/via/roster/" target="_blank" rel="noopener">퇴원 처리 · 복귀 · 반 이동은 명단 관리</a></div>';
   el.innerHTML=h;
 }
 $('isq').oninput=renderInfo;
