@@ -290,8 +290,8 @@ function openM(m){
   $('p-hw').classList.toggle('hide',m!=='hw');
   $('p-cls').classList.toggle('hide',m!=='cls');
   if(m==='cls'&&!CLSINIT){CLSINIT=1;setCls('여')}
-  if(!BOOT)$('lg').classList.toggle('hide',m!=='mon');
-  if(FRS[m]){var f=$('f-'+m);if(!f.getAttribute('src'))f.setAttribute('src',FRS[m])}
+  if(!BOOT){$('lg').classList.toggle('hide',!(m==='mon'||m==='room'||m==='hw'));$('p-room').classList.add('hide');$('p-hw').classList.add('hide')}
+  if(FRS[m]&&BOOT){var f=$('f-'+m);if(!f.getAttribute('src'))f.setAttribute('src',FRS[m])}
   try{history.replaceState(null,'',location.pathname+location.search+(m==='mon'?'':'#'+m))}catch(e){}
 }
 document.querySelector('nav').onclick=function(e){
@@ -307,7 +307,7 @@ async function boot(){
   ST=d.s.filter(function(o){return o.status==='on'}).map(function(o){return {id:o.id,name:o.name,cls:o.cls}});
   try{var t=await getDoc(doc(db,'board','2000-01-05|_시간표'));var j=JSON.parse(t.data().chk);TT=JSON.parse(j.tt.j).t||{}}catch(e){TT={}}
   M=(/[?&]m=(fri|reg|reg2|mkp)/.exec(location.search)||[])[1]||defMode();var sl=slots();SL=nowSlot(sl);
-  BOOT=true;$('lg').classList.add('hide');if(document.body.getAttribute('data-m')==='mon')$('p-mon').classList.remove('hide');watch();
+  BOOT=true;$('lg').classList.add('hide');openM(document.body.getAttribute('data-m')||'mon');watch();
 }
 $('gl').onclick=async function(){
   try{await signInWithPopup(auth,new GoogleAuthProvider())}
