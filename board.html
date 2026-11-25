@@ -457,7 +457,7 @@ $('ov').addEventListener('click',function(e){
 var SC=null,SCL=0,SCE=0,JN={},OFFL=[],NL={};
 function neltLatest(a){var b=null;(a||[]).forEach(function(e){if(/넬트/.test(e.t||'')&&(!b||String(e.d||'')>String(b.d||'')))b=e});return b}
 function neltText(e){return e.r||Object.keys(e.v||{}).map(function(k){return k+' '+e.v[k]}).join(' / ')}
-function neltShort(e){var m=String(e.d||'').match(/^\d+-(\d+)-(\d+)/),x=neltText(e).split(/\s\/\s/)[0],p=/레벨\s*(\S+)\s+(\S+)\s*\(상위\s*([\d.]+)%?\)/.exec(x),s=p?'레벨 '+p[1]+' · '+p[2]+' 전국 상위 '+p[3]+'%':x;return s+(m?' · '+(+m[1])+'/'+(+m[2]):'')}
+function neltShort(e){var m=String(e.d||'').match(/^(\d+)-(\d+)-(\d+)/),x=neltText(e).split(/\s\/\s/)[0],p=/레벨\s*(\S+)\s+(\S+)\s*\(상위\s*([\d.]+)%?\)/.exec(x),s=p?'레벨 '+p[1]+' (상위 '+p[3]+'%)':x,ds='';if(m){var d=new Date(+m[1],+m[2]-1,+m[3]);ds=(+m[1]!==2026?String(m[1]).slice(2)+'/':'')+(+m[2])+'/'+(+m[3])+'('+'일월화수목금토'[d.getDay()]+')'}return s+(ds?' · '+ds:'')}
 function nlBox(name){if(!SC)return '';var e=NL[nm(name)];if(!e)return '<div class="nl"><b>최근 넬트</b><div>기록 없음</div></div>';return '<div class="nl"><b>최근 넬트</b><span class="nd">'+esc(jdate(e.d))+'</span>'+[neltText(e)].concat(e.m?String(e.m).split(/\s\/\s/):[]).map(function(x){return '<div>'+esc(x)+'</div>'}).join('')+'</div>'}
 function scChip(s){if(SCE)return '<span>성적표 읽기 실패</span>';if(!SC)return '<span>성적표 확인 중</span>';var a=SC[nm(s.name)];return a?(a.length?'<span class="on">성적 '+a.length+'건</span>':'<span>성적 없음</span>'):'<span>성적표 미연결</span>'}
 async function loadSC(){if(SC||SCL)return;SCL=1;try{var s=await getDocs(collection(db,'sc')),o={};s.docs.forEach(function(x){var d=x.data();o[nm(d.name)]=d.rec||[];JN[nm(d.name)]=d.joined||'';NL[nm(d.name)]=neltLatest(d.rec)});SC=o}catch(e){SCE=1}renderInfo()}
