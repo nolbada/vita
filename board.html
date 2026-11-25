@@ -121,6 +121,8 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 .tk{border:1px solid var(--ln);background:var(--soft);color:var(--a);border-radius:10px;padding:6px 10px;font:inherit;display:flex;flex-direction:column;align-items:center;cursor:pointer;min-width:64px}
 .tk b{font-size:14px}.tk span{font-size:12px;color:var(--sub)}
 .tr{margin-top:12px;font-size:13px;color:var(--sub)}
+
+.ip .in em{font-style:normal;font-size:12px;font-weight:600;color:var(--a);margin-left:8px}
 </style>
 </head>
 <body data-m="mon">
@@ -131,7 +133,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
     <button class="mon on" data-m="mon">학습현황</button>
     <button class="room" data-m="room">학습지정</button>
     <button class="cls" data-m="cls">수업자료</button>
-    <button class="info" data-m="info">학생정보</button>
+    <button class="info" data-m="info">관리보드</button>
   </nav>
   <div class="clk" id="clk"></div>
 </header>
@@ -313,17 +315,12 @@ function renderInfo(){
   var el=$('ilist'),q=nm($('isq').value||'');
   if(!BOOT){el.innerHTML='';$('icnt').textContent='';return}
   var all=ST.filter(function(s){return !/체험/.test(s.cls||'')});
-  var L=all.filter(function(s){return (!q||nm(s.name).indexOf(q)>-1)&&(!IK||s.cls===IK)});
-  var g={};L.forEach(function(s){(g[s.cls]=g[s.cls]||[]).push(s)});
-  var ks=Object.keys(g).sort(function(a,b){return a.localeCompare(b,'ko')});
-  $('icnt').textContent='재원 '+all.length+'명'+(q?' · 검색 '+L.length+'명':'');
-  el.innerHTML=ks.map(function(k){
-    var rows=g[k].sort(function(a,b){return a.name.localeCompare(b.name,'ko')}).map(function(s){
-      var sub=[s.school||'',s.grade||''].filter(Boolean).join(' · ');
-      return '<div class="ip"><div class="in">'+esc(s.name)+'</div><div class="is">'+(esc(sub)||'학교·학년 미입력')+'</div><div class="ik">'+(s.fri?'<span class="on">금</span>':'')+(s.sat?'<span class="on">토</span>':'')+'<span>아이디 미연결</span><span>성적표 미연결</span></div></div>';
-    }).join('');
-    return '<div class="ig"><h3>'+esc(infoCls(k))+'<span>'+g[k].length+'명</span></h3><div class="ic">'+rows+'</div></div>';
-  }).join('')||'<div class="empty">표시할 학생이 없습니다</div>';
+  var L=all.filter(function(s){return (!q||nm(s.name).indexOf(q)>-1)&&(!IK||s.cls===IK)}).sort(function(a,b){return a.name.localeCompare(b.name,'ko')});
+  $('icnt').textContent=IK?(infoCls(IK)+' · '+L.length+'명'):('재원 '+all.length+'명'+(q?' · 검색 '+L.length+'명':''));
+  el.innerHTML=L.length?'<div class="ic">'+L.map(function(s){
+    var sub=[s.school||'',s.grade||''].filter(Boolean).join(' · ');
+    return '<div class="ip"><div class="in">'+esc(s.name)+'<em>'+esc(infoCls(s.cls))+'</em></div><div class="is">'+(esc(sub)||'학교·학년 미입력')+'</div><div class="ik">'+(s.fri?'<span class="on">금</span>':'')+(s.sat?'<span class="on">토</span>':'')+'<span>아이디 미연결</span><span>성적표 미연결</span></div></div>';
+  }).join('')+'</div>':'<div class="empty">표시할 학생이 없습니다</div>';
 }
 $('isq').oninput=renderInfo;
 
