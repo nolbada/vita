@@ -173,7 +173,7 @@ function dayStart(){var d=new Date();d.setHours(0,0,0,0);return d.getTime()}
 function isOpt(it){return /^dl-/.test(it.c||'')||/대화문/.test(it.n||'')||/^비단챌 문장성분/.test(it.n||'')}
 function hm(t){var d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function isAtt(){return M==='fri'||M==='mkp'}
-function defMode(){var w=new Date().getDay();return w===5?'fri':(w===6?'mkp':((w===3||w===4)?'reg2':'reg'))}
+function defMode(){var w=new Date().getDay();return (w===5||w===6)?'fri':((w===3||w===4)?'reg2':'reg')}
 function groups(){var w=new Date().getDay();if(w===1||w===3)return ['월수'];if(w===2||w===4)return ['화목'];return ['월수','화목']}
 function slots(){
   var out=[];
@@ -274,7 +274,7 @@ function renderFri(){
 }
 function bar(){
   var sl=slots();
-  var md=[['reg','Day 1'],['reg2','Day 2'],['fri','Friday'],['mkp','Saturday']];
+  var md=[['reg','Day 1'],['reg2','Day 2'],['fri','FRI']];
   $('bar').innerHTML=md.map(function(a){return '<button class="pill'+(a[0]===M?' on':'')+'" data-md="'+a[0]+'">'+a[1]+'</button>'}).join('')+'<div class="sep"></div>'+(isAtt()?[['','\uC804\uCCB4'],['\uB0A8','\uB0A8쌤'],['\uC5EC','\uC5EC쌤']].map(function(a){return '<button class="pill'+(a[0]===RM?' on':'')+'" data-rm="'+a[0]+'">'+a[1]+'</button>'}).join(''):sl.map(function(x,i){return '<button class="pill'+(i===SL?' on':'')+'" data-sl="'+i+'">'+x.t.join(' / ')+'</button>'}).join(''));
 }
 var MY=[];try{MY=JSON.parse(localStorage.getItem('vitaMy')||'[]').filter(Boolean)}catch(e){MY=[]}
