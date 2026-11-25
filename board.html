@@ -172,6 +172,7 @@ function wkStart(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((
 function dayStart(){var d=new Date();d.setHours(0,0,0,0);return d.getTime()}
 function isOpt(it){return /^dl-/.test(it.c||'')||/대화문/.test(it.n||'')||/^비단챌 문장성분/.test(it.n||'')}
 function hm(t){var d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function isAtt(){return M==='fri'||M==='mkp'}
 function defMode(){var w=new Date().getDay();return w===5?'fri':(w===6?'mkp':((w===3||w===4)?'reg2':'reg'))}
 function groups(){var w=new Date().getDay();if(w===1||w===3)return ['월수'];if(w===2||w===4)return ['화목'];return ['월수','화목']}
 function slots(){
@@ -212,7 +213,7 @@ function unsub(){UN.forEach(function(f){try{f()}catch(e){}});UN=[];Object.keys(F
 function watchHw(){if(UH)return;UH=onSnapshot(doc(db,'hw_w',wkSat()),function(sn){HWR=(sn.exists()&&sn.data().r)||{};render()},function(){HWR={}})}
 function watch(){
   unsub();
-  if(M==='fri'){watchHw();watchAtt();syncFri();render();return}
+  if(isAtt()){watchHw();watchAtt();syncFri();render();return}
   var sl=slots();if(!sl.length&&!MY.length)return render();
   var cls=MY.length?MY:(sl[SL]||sl[0]).c;
   ST.filter(function(s){return cls.indexOf(s.cls)>-1}).forEach(function(s){
@@ -234,13 +235,13 @@ function attList(){
   return out;
 }
 function syncFri(){
-  if(M!=='fri')return;
+  if(!isAtt())return;
   var want={},byN={};ST.forEach(function(s){byN[nm(s.name)]=s});
   attList().forEach(function(a){var s=byN[nm(a.name)];if(s)want[s.id]=1});
   Object.keys(FS).forEach(function(id){if(!want[id]){try{FS[id]()}catch(e){}delete FS[id];delete DATA[id]}});
   Object.keys(want).forEach(function(id){
     if(FS[id])return;
-    FS[id]=onSnapshot(doc(db,'vday',id,'days','fri'),function(sn){DATA[id]=sn.exists()?sn.data():null;render()},function(){DATA[id]=null;render()});
+    FS[id]=onSnapshot(doc(db,'vday',id,'days',dkey()),function(sn){DATA[id]=sn.exists()?sn.data():null;render()},function(){DATA[id]=null;render()});
   });
 }
 function watchAtt(){
@@ -273,11 +274,11 @@ function renderFri(){
 }
 function bar(){
   var sl=slots();
-  var md=[['reg','Day 1'],['reg2','Day 2'],['fri','Friday'],['mkp','Saturday']];var df=defMode();md.sort(function(a,b){return (a[0]===df?0:1)-(b[0]===df?0:1)});
-  $('bar').innerHTML=md.map(function(a){return '<button class="pill'+(a[0]===M?' on':'')+'" data-md="'+a[0]+'">'+a[1]+'</button>'}).join('')+'<div class="sep"></div>'+(M==='fri'?[['','\uC804\uCCB4'],['\uB0A8','\uB0A8쌤'],['\uC5EC','\uC5EC쌤']].map(function(a){return '<button class="pill'+(a[0]===RM?' on':'')+'" data-rm="'+a[0]+'">'+a[1]+'</button>'}).join(''):sl.map(function(x,i){return '<button class="pill'+(i===SL?' on':'')+'" data-sl="'+i+'">'+x.t.join(' / ')+'</button>'}).join(''));
+  var md=[['reg','Day 1'],['reg2','Day 2'],['fri','Friday'],['mkp','Saturday']];
+  $('bar').innerHTML=md.map(function(a){return '<button class="pill'+(a[0]===M?' on':'')+'" data-md="'+a[0]+'">'+a[1]+'</button>'}).join('')+'<div class="sep"></div>'+(isAtt()?[['','\uC804\uCCB4'],['\uB0A8','\uB0A8쌤'],['\uC5EC','\uC5EC쌤']].map(function(a){return '<button class="pill'+(a[0]===RM?' on':'')+'" data-rm="'+a[0]+'">'+a[1]+'</button>'}).join(''):sl.map(function(x,i){return '<button class="pill'+(i===SL?' on':'')+'" data-sl="'+i+'">'+x.t.join(' / ')+'</button>'}).join(''));
 }
 var MY=[];try{MY=JSON.parse(localStorage.getItem('vitaMy')||'[]').filter(Boolean)}catch(e){MY=[]}
-function myBtn(){var b=$('bar');if(!b||M==='fri')return;var x=document.createElement('button');x.className='pill'+(MY.length?' on':'');x.setAttribute('data-my','1');x.textContent=MY.length?('내 반 '+MY.length+'개'):'내 반';b.appendChild(x)}
+function myBtn(){var b=$('bar');if(!b||isAtt())return;var x=document.createElement('button');x.className='pill'+(MY.length?' on':'');x.setAttribute('data-my','1');x.textContent=MY.length?('내 반 '+MY.length+'개'):'내 반';b.appendChild(x)}
 function openMy(){
   var g={};ST.forEach(function(s){if(/체험/.test(s.cls||''))return;(g[s.cls]=g[s.cls]||[]).push(s.name)});
   var ks=Object.keys(g).sort(function(a,b){var ta=(TT[a]||{}).s||'99',tb=(TT[b]||{}).s||'99';return ta<tb?-1:ta>tb?1:infoCls(a).localeCompare(infoCls(b),'ko')});
@@ -288,7 +289,7 @@ function openMy(){
 }
 function render(){
   bar();try{myBtn()}catch(e){}
-  if(M==='fri'){renderFri();return}
+  if(isAtt()){renderFri();return}
   var sl=slots();
   var cls=MY.length?MY:(sl.length?(sl[SL]||sl[0]).c:[]);
   var list=ST.filter(function(s){return cls.indexOf(s.cls)>-1&&(DATA[s.id]||MY.length)}).sort(function(a,b){return a.name.localeCompare(b.name,'ko')});
@@ -410,7 +411,7 @@ async function boot(){
   var s=await getDoc(doc(db,'hw_c','master'));var d=JSON.parse(s.data().j);
   ST=d.s.filter(function(o){return o.status==='on'}).map(function(o){return {id:o.id,name:o.name,cls:o.cls,grade:o.grade||'',school:o.school||'',fri:!!o.fri,sat:!!o.sat}});
   try{var t=await getDoc(doc(db,'board','2000-01-05|_시간표'));var j=JSON.parse(t.data().chk);TT=JSON.parse(j.tt.j).t||{}}catch(e){TT={}}
-  M=(/[?&]m=(fri|reg|reg2|mkp)/.exec(location.search)||[])[1]||defMode();var sl=slots();SL=nowSlot(sl);
+  M=(/[?&]m=(fri|mkp)/.exec(location.search)||[])[1]||defMode();var sl=slots();SL=nowSlot(sl);
   BOOT=true;$('lg').classList.add('hide');openM(document.body.getAttribute('data-m')||'mon');watch();
 }
 $('gl').onclick=async function(){
