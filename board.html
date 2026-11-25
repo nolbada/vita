@@ -129,6 +129,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 .rr{border-top:1px solid #eef1f6;cursor:pointer}
 .rr:hover{background:#faf8fd}
 .rost{font-size:13px;font-weight:700;color:#fff;background:var(--a);border-radius:10px;padding:10px 14px;text-decoration:none;white-space:nowrap}
+.rt.c4 .rh,.rt.c4 .rr{grid-template-columns:1.1fr 1.5fr 1.9fr 1.3fr}
 .nl{background:var(--soft);border-radius:12px;padding:10px 12px;margin-top:10px}.nl b{color:var(--a);font-size:13px}.nl .nd{font-size:12px;color:var(--sub);margin-left:6px}.nl div{font-size:14px;margin-top:3px}
 @media(max-width:640px){#p-info .itb{flex-wrap:wrap;gap:8px}#p-info .iv{flex:1 1 100%;overflow-x:auto}#p-info .iv .pill{flex:none;padding:8px 10px;font-size:14px}#isq{flex:1 1 100%;order:2}#icnt{order:3}.rost{order:4;margin-left:auto}}
 .rr b{font-size:15px}.rr .m{color:var(--sub);font-size:13px}.rr .d{color:var(--sub);font-size:13px}
@@ -160,7 +161,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 .ox{margin-top:22px}.ox h3{font-size:14px;color:var(--sub);margin:0 2px 8px}
 .ox div{display:flex;flex-wrap:wrap;gap:6px}.ox span{font-size:13px;padding:5px 11px;border-radius:999px;background:#eef1f6;color:var(--sub)}
 .ox a,.pop a.lk{display:inline-block;margin-top:10px;font-size:13px;color:var(--a);font-weight:700;text-decoration:none}
-@media(max-width:640px){.rh,.rr{grid-template-columns:1fr 1.3fr 1fr;padding:11px 14px}.rh span:nth-child(n+4),.rr span:nth-child(n+4){display:none}}
+@media(max-width:640px){.rh,.rr{grid-template-columns:1fr 1.3fr 1fr;padding:11px 14px}.rt.c4 .rh,.rt.c4 .rr{grid-template-columns:1fr 1.3fr 1.5fr}.rh span:nth-child(n+4),.rr span:nth-child(n+4){display:none}}
 
 .ip{cursor:pointer}
 .sr{padding:10px 0;border-top:1px solid var(--line)}
@@ -377,10 +378,10 @@ function renderInfo(){
   $('icnt').textContent=IK?(infoCls(IK)+' · '+L.length+'명'):('재원 '+all.length+'명');
   var h='';
   if(L.length){
-    h='<div class="rt"><div class="rh"><span>이름</span><span>학교 · 학년</span><span>반</span><span>최근 넬트</span><span>입회일</span></div>'+L.map(function(s){
+    h='<div class="rt'+(IK?' c4':'')+'"><div class="rh"><span>이름</span><span>학교 · 학년</span>'+(IK?'':'<span>반</span>')+'<span>최근 넬트</span><span>입회일</span></div>'+L.map(function(s){
       var sub=[s.school||'',s.grade||''].filter(Boolean).join(' · ');
       var jd=SC?jdate(JN[nm(s.name)]):'';
-      return '<div class="rr" data-n="'+esc(s.name)+'"><span><b>'+esc(s.name)+'</b></span><span class="m">'+(esc(sub)||'-')+'</span><span class="m">'+esc(infoCls(s.cls))+'</span><span class="m">'+(SC?(NL[nm(s.name)]?esc(neltShort(NL[nm(s.name)])):'-'):'')+'</span><span class="d">'+(SC?(jd||'-'):'')+'</span></div>';
+      return '<div class="rr" data-n="'+esc(s.name)+'"><span><b>'+esc(s.name)+'</b></span><span class="m">'+(esc(sub)||'-')+'</span>'+(IK?'':'<span class="m">'+esc(infoCls(s.cls))+'</span>')+'<span class="m">'+(SC?(NL[nm(s.name)]?esc(neltShort(NL[nm(s.name)])):'-'):'')+'</span><span class="d">'+(SC?(jd||'-'):'')+'</span></div>';
     }).join('')+'</div>';
   }else h='<div class="empty">표시할 학생이 없습니다</div>';
   el.innerHTML=h;
@@ -456,7 +457,7 @@ $('ov').addEventListener('click',function(e){
 var SC=null,SCL=0,SCE=0,JN={},OFFL=[],NL={};
 function neltLatest(a){var b=null;(a||[]).forEach(function(e){if(/넬트/.test(e.t||'')&&(!b||String(e.d||'')>String(b.d||'')))b=e});return b}
 function neltText(e){return e.r||Object.keys(e.v||{}).map(function(k){return k+' '+e.v[k]}).join(' / ')}
-function neltShort(e){var m=String(e.d||'').match(/^\d+-(\d+)-(\d+)/);return neltText(e).split(/\s\/\s|\s·\s/)[0]+(m?' · '+(+m[1])+'/'+(+m[2]):'')}
+function neltShort(e){var m=String(e.d||'').match(/^\d+-(\d+)-(\d+)/),x=neltText(e).split(/\s\/\s/)[0],p=/레벨\s*(\S+)\s+(\S+)\s*\(상위\s*([\d.]+)%?\)/.exec(x),s=p?'레벨 '+p[1]+' · '+p[2]+' 전국 상위 '+p[3]+'%':x;return s+(m?' · '+(+m[1])+'/'+(+m[2]):'')}
 function nlBox(name){if(!SC)return '';var e=NL[nm(name)];if(!e)return '<div class="nl"><b>최근 넬트</b><div>기록 없음</div></div>';return '<div class="nl"><b>최근 넬트</b><span class="nd">'+esc(jdate(e.d))+'</span>'+[neltText(e)].concat(e.m?String(e.m).split(/\s\/\s/):[]).map(function(x){return '<div>'+esc(x)+'</div>'}).join('')+'</div>'}
 function scChip(s){if(SCE)return '<span>성적표 읽기 실패</span>';if(!SC)return '<span>성적표 확인 중</span>';var a=SC[nm(s.name)];return a?(a.length?'<span class="on">성적 '+a.length+'건</span>':'<span>성적 없음</span>'):'<span>성적표 미연결</span>'}
 async function loadSC(){if(SC||SCL)return;SCL=1;try{var s=await getDocs(collection(db,'sc')),o={};s.docs.forEach(function(x){var d=x.data();o[nm(d.name)]=d.rec||[];JN[nm(d.name)]=d.joined||'';NL[nm(d.name)]=neltLatest(d.rec)});SC=o}catch(e){SCE=1}renderInfo()}
