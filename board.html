@@ -95,6 +95,21 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 #grid.grid,.grid{grid-template-rows:none!important;grid-auto-rows:minmax(112px,auto)}
 .st{overflow:visible;min-height:112px;gap:6px}
 }
+
+/* 학생정보 */
+#p-info .itb{display:flex;align-items:center;gap:10px;margin:0 0 10px}
+#isq{flex:1;min-width:0;height:42px;border:1px solid var(--ln);border-radius:12px;padding:0 14px;font:inherit;font-size:15px;background:#fff;color:var(--ink)}
+#icnt{font-size:14px;font-weight:700;color:var(--a);white-space:nowrap}
+#ilist{flex:1;min-height:0;overflow-y:auto;padding-bottom:12px}
+.ig h3{display:flex;justify-content:space-between;font-size:15px;color:var(--a);margin:14px 2px 8px}
+.ig h3 span{font-size:13px;color:var(--sub);font-weight:600}
+.ic{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}
+.ip{background:#fff;border:1px solid var(--ln);border-radius:14px;padding:12px 14px}
+.ip .in{font-size:17px;font-weight:700}
+.ip .is{font-size:12px;color:var(--sub);margin-top:2px;min-height:15px}
+.ik{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.ik span{font-size:11px;padding:3px 8px;border-radius:999px;background:#f1f3f8;color:#8a93a6}
+.ik span.on{background:var(--soft);color:var(--a);font-weight:700}
 </style>
 </head>
 <body data-m="mon">
@@ -118,7 +133,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
   <div id="p-room" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-room" title="학습지정"></iframe></div>
   <div id="p-hw" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-hw" title="숙제 검사"></iframe></div>
   <div id="p-cls" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="bar" style="padding:12px 22px 0;margin:0"><button class="pill on" data-t="여">여쌤</button><button class="pill" data-t="남">남쌤</button></div><div id="clist"></div></div>
-  <div id="p-info" class="hide ph">원생 관리 화면은 구성 중입니다.<br>명단 관리는 <a href="https://nolbada.github.io/via/roster/">통합 명부</a>에서 계속 사용합니다.</div>
+  <div id="p-info" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="itb"><input id="isq" type="search" placeholder="이름 검색" autocomplete="off"><span id="icnt"></span></div><div id="ilist"></div></div>
 </main>
 <div id="ov" class="ov hide"></div>
 <script type="module">
@@ -281,6 +296,25 @@ function setCls(t){
   var h='';o.forEach(function(k){h+='<div class="cg"><h3>'+k+'</h3><div class="cr">'+g[k].map(function(r){return '<a class="cl" target="_blank" rel="noopener" href="'+r[3]+'">'+r[2]+'</a>'}).join('')+'</div></div>'});
   $('clist').innerHTML=h||'<div class="ph">등록된 수업자료 없음</div>';
 }
+
+function infoCls(c){return (c.charAt(0)==='M'?'월수 ':c.charAt(0)==='T'?'화목 ':'')+c.replace(/^[MT]/,'')}
+function renderInfo(){
+  var el=$('ilist'),q=nm($('isq').value||'');
+  if(!BOOT){el.innerHTML='';$('icnt').textContent='';return}
+  var all=ST.filter(function(s){return !/체험/.test(s.cls||'')});
+  var L=all.filter(function(s){return !q||nm(s.name).indexOf(q)>-1});
+  var g={};L.forEach(function(s){(g[s.cls]=g[s.cls]||[]).push(s)});
+  var ks=Object.keys(g).sort(function(a,b){return a.localeCompare(b,'ko')});
+  $('icnt').textContent='재원 '+all.length+'명'+(q?' · 검색 '+L.length+'명':'');
+  el.innerHTML=ks.map(function(k){
+    var rows=g[k].sort(function(a,b){return a.name.localeCompare(b.name,'ko')}).map(function(s){
+      var sub=[s.school||'',s.grade||''].filter(Boolean).join(' · ');
+      return '<div class="ip"><div class="in">'+esc(s.name)+'</div><div class="is">'+(esc(sub)||'학교·학년 미입력')+'</div><div class="ik">'+(s.fri?'<span class="on">금</span>':'')+(s.sat?'<span class="on">토</span>':'')+'<span>아이디 미연결</span><span>성적표 미연결</span></div></div>';
+    }).join('');
+    return '<div class="ig"><h3>'+esc(infoCls(k))+'<span>'+g[k].length+'명</span></h3><div class="ic">'+rows+'</div></div>';
+  }).join('')||'<div class="empty">표시할 학생이 없습니다</div>';
+}
+$('isq').oninput=renderInfo;
 function openM(m){
   document.body.setAttribute('data-m',m);
   document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-m')===m)});
@@ -290,8 +324,9 @@ function openM(m){
   $('p-hw').classList.toggle('hide',m!=='hw');
   $('p-cls').classList.toggle('hide',m!=='cls');
   if(m==='cls'&&!CLSINIT){CLSINIT=1;setCls('여')}
-  if(!BOOT){$('lg').classList.toggle('hide',!(m==='mon'||m==='room'||m==='hw'));$('p-room').classList.add('hide');$('p-hw').classList.add('hide')}
+  if(!BOOT){$('lg').classList.toggle('hide',!(m==='mon'||m==='room'||m==='hw'||m==='info'));$('p-room').classList.add('hide');$('p-hw').classList.add('hide');$('p-info').classList.add('hide')}
   if(FRS[m]&&BOOT){var f=$('f-'+m);if(!f.getAttribute('src'))f.setAttribute('src',FRS[m])}
+  if(m==='info')renderInfo();
   try{history.replaceState(null,'',location.pathname+location.search+(m==='mon'?'':'#'+m))}catch(e){}
 }
 document.querySelector('nav').onclick=function(e){
@@ -304,7 +339,7 @@ function tick(){var d=new Date();$('clk').textContent=(d.getMonth()+1)+'/'+d.get
 tick();setInterval(tick,30000);
 async function boot(){
   var s=await getDoc(doc(db,'hw_c','master'));var d=JSON.parse(s.data().j);
-  ST=d.s.filter(function(o){return o.status==='on'}).map(function(o){return {id:o.id,name:o.name,cls:o.cls}});
+  ST=d.s.filter(function(o){return o.status==='on'}).map(function(o){return {id:o.id,name:o.name,cls:o.cls,grade:o.grade||'',school:o.school||'',fri:!!o.fri,sat:!!o.sat}});
   try{var t=await getDoc(doc(db,'board','2000-01-05|_시간표'));var j=JSON.parse(t.data().chk);TT=JSON.parse(j.tt.j).t||{}}catch(e){TT={}}
   M=(/[?&]m=(fri|reg|reg2|mkp)/.exec(location.search)||[])[1]||defMode();var sl=slots();SL=nowSlot(sl);
   BOOT=true;$('lg').classList.add('hide');openM(document.body.getAttribute('data-m')||'mon');watch();
