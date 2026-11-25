@@ -1,19 +1,61 @@
-/* vita 연결: 학생 홈에서 활동을 눌러 들어온 경우에만 "할 일 목록" 고정 버튼을 띄우고, 눌러서 학생 홈으로 돌아간다. 초기화 버튼은 숨긴다. */
+/* vita 연결: 학생 홈에서 활동을 눌러 들어온 경우에만 위쪽 "← 오늘의 학습" 바를 띄우고, 활동이 끝나면 그 학생의 오늘의 학습 항목에 완료를 기록한다.
+   board/link.js 와 이 파일을 불러오는 모든 활동 앱이 함께 쓴다(board/link.js 는 이 파일을 불러오기만 한다). 홈에서 들어오지 않았으면 아무것도 하지 않는다. */
 (function(){try{
   if(window.__vnav)return;window.__vnav=1;
-  try{if(sessionStorage.getItem('vita-in')!=='1')return}catch(e){return}
-  var D=document;
-  function go(){try{(window.top||window).location.href='/vita/'}catch(e){location.href='/vita/'}}
+  var W=window,D=document,SS;
+  try{SS=W.sessionStorage;if(SS.getItem('vita-in')!=='1')return}catch(e){return}
+  var at=null;try{at=JSON.parse(SS.getItem('vita-at')||'null')}catch(e){}
+  if(at&&!(/^(reg|reg2|fri|mkp)$/.test(at.k)&&typeof at.i==='number'&&at.i>=0&&at.i<100))at=null;
+  var CFG={apiKey:'AIzaSyC88G-OjMJOqVqnIVqunzh7fvk91wtKKnA',authDomain:'h-roadmap.firebaseapp.com',projectId:'h-roadmap',appId:'1:575520405083:web:b9f40b64cb0ae3d1a9317e'};
+  var V='https://www.gstatic.com/firebasejs/10.14.1/',fb=null,sent=false,auto=false;
+  function init(){
+    if(fb)return fb;
+    fb=(async function(){
+      var A=await import(V+'firebase-app.js'),U=await import(V+'firebase-auth.js'),F=await import(V+'firebase-firestore.js');
+      var app;try{app=A.getApp('vita')}catch(e){app=A.initializeApp(CFG,'vita')}
+      var auth=U.getAuth(app);await auth.authStateReady();
+      return {auth:auth,db:F.getFirestore(app),F:F};
+    })();
+    return fb;
+  }
+  function write(n){
+    return init().then(function(c){
+      var u=c.auth.currentUser;if(!u)return;
+      var now=Date.now(),up={t:now},dk=at.k==='reg2'?'reg':at.k;up['done.'+(at.i+(at.k==='reg2'?100:0))]=now;
+      return c.F.updateDoc(c.F.doc(c.db,'vday',u.uid,'days',dk),up);
+    }).catch(function(){fb=null;if(n<2)return new Promise(function(r){setTimeout(r,2500)}).then(function(){return write(n+1)})});
+  }
+  function mark(){if(sent||!at)return Promise.resolve();sent=true;return write(0)}
+  function go(){try{(W.top||W).location.href='/vita/'}catch(e){location.href='/vita/'}}
+  function wired(){try{return !!SS.getItem('vita-mk')}catch(e){return false}}
+  function ask(){
+    if(D.getElementById('vask'))return;
+    var o=D.createElement('div');o.id='vask';o.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483646;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px';
+    var b=D.createElement('div');b.style.cssText='background:#fff;border-radius:16px;padding:24px 20px;max-width:340px;width:100%;text-align:center;font-family:sans-serif';
+    var h=D.createElement('div');h.textContent='이 학습, 끝냈나요?';h.style.cssText='font:700 19px/1.4 sans-serif;color:#111;margin-bottom:18px';b.appendChild(h);
+    function btn(t,bg,fg,fn){var x=D.createElement('button');x.type='button';x.textContent=t;x.style.cssText='display:block;width:100%;margin-top:10px;padding:15px 0;border:0;border-radius:12px;font:700 17px/1 sans-serif;background:'+bg+';color:'+fg;x.onclick=fn;b.appendChild(x)}
+    btn('끝냈어요','#1f2937','#fff',function(){Promise.race([mark(),new Promise(function(r){setTimeout(r,2500)})]).then(go,go)});
+    btn('아직이에요','#e5e7eb','#111',go);
+    o.onclick=function(e){if(e.target===o)o.parentNode.removeChild(o)};
+    o.appendChild(b);D.body.appendChild(o);
+  }
   function add(){
     if(D.getElementById('vhome'))return;
     var s=D.createElement('style');
     s.textContent='.rst{display:none!important}html{padding-top:calc(46px + env(safe-area-inset-top,0px))!important}#vhome{position:fixed;top:0;left:0;right:0;height:calc(46px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 0 0 16px;box-sizing:border-box;z-index:2147483000;background:#1f2937;color:#fff;font:700 16px/46px sans-serif;text-align:left;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)}';
     D.head.appendChild(s);
     var a=D.createElement('a');a.id='vhome';a.href='/vita/';a.textContent='← 오늘의 학습';
-    a.addEventListener('click',function(e){e.preventDefault();go()});
+    a.addEventListener('click',function(e){e.preventDefault();if(!at||auto||sent||wired())go();else ask()});
     D.body.appendChild(a);
   }
   if(D.body)add();else D.addEventListener('DOMContentLoaded',add);
-  D.addEventListener('click',function(e){var a=e.target&&e.target.closest?e.target.closest('a'):null;if(a&&a.id!=='vhome'&&a.textContent.trim()==='홈으로'){e.preventDefault();go()}},true);
-function ren(){var b=D.querySelectorAll('button');for(var j=0;j<b.length;j++){if(/비우기/.test(b[j].textContent))b[j].style.display='none'}var l=D.querySelectorAll('a');for(var i=0;i<l.length;i++){if(l[i].id!=='vhome'&&l[i].textContent.trim()==='홈으로')l[i].style.display='none'}}try{new MutationObserver(ren).observe(D.documentElement,{childList:true,subtree:true})}catch(e){}ren();
+  D.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target:null;if(!t)return;var a=t.closest('a');
+    if(a&&a.id!=='vhome'&&a.textContent.trim()==='홈으로'){e.preventDefault();go();return}
+    var b=t.closest('button');
+    if(b&&b.textContent.trim()==='제출'){var n=0,iv=setInterval(function(){n++;if(D.querySelector('#sbar .score')){clearInterval(iv);auto=true;mark()}else if(n>25)clearInterval(iv)},300)}
+  },true);
+  function ren(){var b=D.querySelectorAll('button');for(var j=0;j<b.length;j++){if(/비우기/.test(b[j].textContent))b[j].style.display='none'}var l=D.querySelectorAll('a');for(var i=0;i<l.length;i++){if(l[i].id!=='vhome'&&l[i].textContent.trim()==='홈으로')l[i].style.display='none'}}
+  try{new MutationObserver(ren).observe(D.documentElement,{childList:true,subtree:true})}catch(e){}
+  ren();
+  setTimeout(function(){if(at)init().catch(function(){fb=null})},2500);
 }catch(e){}})();
