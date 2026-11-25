@@ -100,6 +100,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 /* 학생정보 */
 #p-info .itb{display:flex;align-items:center;gap:10px;margin:0 0 10px}
 #isq{flex:1;min-width:0;height:42px;border:1px solid var(--ln);border-radius:12px;padding:0 14px;font:inherit;font-size:15px;background:#fff;color:var(--ink)}
+#hcb{order:3;flex:none;padding:6px 12px;font-size:13px}
 #icnt{font-size:14px;font-weight:700;color:var(--a);white-space:nowrap}
 #ilist{flex:1;min-height:0;overflow-y:auto;padding-bottom:12px}
 .ig h3{display:flex;justify-content:space-between;font-size:15px;color:var(--a);margin:14px 2px 8px}
@@ -193,7 +194,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
   <div id="p-room" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-room" title="학습지정"></iframe></div>
   <div id="p-hw" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-hw" title="숙제 검사"></iframe></div>
   <div id="p-cls" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="bar" style="padding:12px 22px 0;margin:0"><button class="pill on" data-t="여">여쌤</button><button class="pill" data-t="남">남쌤</button></div><div id="clist"></div></div>
-  <div id="p-info" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="itb"><div class="iv" id="ivb"><button class="pill on" data-v="tt">시간표</button><button class="pill" data-v="ls">명단</button><button class="pill" data-v="sc">성적</button><button class="pill" data-v="ac">계정</button><button class="pill" data-v="cal">학사일정</button><button class="pill" data-v="at">출석부</button></div><input id="isq" type="search" placeholder="이름 검색" autocomplete="off" style="display:none"><span id="icnt"></span><a id="irost" class="rost" href="/via/roster/" target="_blank" rel="noopener" style="display:none">명단 관리 · 학생 추가</a></div><div id="itt"></div><div id="ilist" class="hide"></div><div id="ical" class="hide"></div><iframe class="fr hide" id="iac" title="학생 계정 관리" style="border-radius:14px;border:1px solid var(--ln)"></iframe><iframe class="fr hide" id="isc" title="성적" style="border-radius:14px;border:1px solid var(--ln)"></iframe><iframe class="fr hide" id="iat" title="출석부" style="border-radius:14px;border:1px solid var(--ln)"></iframe></div>
+  <div id="p-info" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="itb"><div class="iv" id="ivb"><button class="pill on" data-v="tt">시간표</button><button class="pill" data-v="ls">명단</button><button class="pill" data-v="sc">성적</button><button class="pill" data-v="ac">계정</button><button class="pill" data-v="cal">학사일정</button><button class="pill" data-v="at">출석부</button></div><input id="isq" type="search" placeholder="이름 검색" autocomplete="off" style="display:none"><button id="hcb" class="pill" type="button">인원</button><span id="icnt"></span><a id="irost" class="rost" href="/via/roster/" target="_blank" rel="noopener" style="display:none">명단 관리 · 학생 추가</a></div><div id="itt"></div><div id="ilist" class="hide"></div><div id="ical" class="hide"></div><iframe class="fr hide" id="iac" title="학생 계정 관리" style="border-radius:14px;border:1px solid var(--ln)"></iframe><iframe class="fr hide" id="isc" title="성적" style="border-radius:14px;border:1px solid var(--ln)"></iframe><iframe class="fr hide" id="iat" title="출석부" style="border-radius:14px;border:1px solid var(--ln)"></iframe></div>
 </main>
 <div id="ov" class="ov hide"></div>
 <script type="module">
@@ -372,12 +373,13 @@ function setCls(t){
 
 function infoCls(c){return (c.charAt(0)==='M'?'월수 ':c.charAt(0)==='T'?'화목 ':'')+c.replace(/^[MT]/,'')}
 function jdate(s){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s||'');if(!m)return '';var d=new Date(+m[1],+m[2]-1,+m[3]);return m[1]+'.'+m[2]+'.'+m[3]+'('+DAY[d.getDay()]+')'}
+var SHN=0;
 function renderInfo(){
   var el=$('ilist'),q=nm($('isq').value||'');
   if(!BOOT){el.innerHTML='';$('icnt').textContent='';return}
   var all=ST.filter(function(s){return !/체험/.test(s.cls||'')});
   var L=all.filter(function(s){return (!q||nm(s.name).indexOf(q)>-1)&&(!IK||s.cls===IK)}).sort(function(a,b){return a.name.localeCompare(b.name,'ko')});
-  $('icnt').textContent=IK?(infoCls(IK)+' · '+L.length+'명'):('재원 '+all.length+'명');
+  $('icnt').textContent=IK?(infoCls(IK)+(SHN?' · '+L.length+'명':'')):(SHN?'재원 '+all.length+'명':'');
   var h='';
   if(L.length){
     h='<div class="rt'+(IK?' c4':'')+'"><div class="rh"><span>이름</span><span>학교 · 학년</span>'+(IK?'':'<span>반</span>')+'<span>최근 넬트</span><span>입회일</span></div>'+L.map(function(s){
@@ -502,15 +504,16 @@ function renderTT(){
   times.forEach(function(tm){
     h+='<div class="tl">'+tm+(en[tm]?'<small>~'+en[tm]+'</small>':'')+'</div>';
     cols.forEach(function(c){
-      h+='<div class="tc">'+(sl[tm][c]||[]).map(function(k){return '<button class="tk" data-k="'+esc(k)+'"><b>'+esc(infoCls(k).replace(/^(월수|화목) /,''))+'</b><span>'+(cnt[k]||0)+'명</span></button>'}).join('')+'</div>';
+      h+='<div class="tc">'+(sl[tm][c]||[]).map(function(k){return '<button class="tk" data-k="'+esc(k)+'"><b>'+esc(infoCls(k).replace(/^(월수|화목) /,''))+'</b><span>'+(SHN?(cnt[k]||0)+'명':'')+'</span></button>'}).join('')+'</div>';
     });
   });
   h+='</div>';
   var rest=Object.keys(cnt).filter(function(k){return !TT[k]});
-  if(rest.length)h+='<div class="tr">시간표에 없는 반: '+rest.map(function(k){return esc(infoCls(k))+' '+cnt[k]+'명'}).join(' · ')+'</div>';
+  if(rest.length)h+='<div class="tr">시간표에 없는 반: '+rest.map(function(k){return esc(infoCls(k))+(SHN?' '+cnt[k]+'명':'')}).join(' · ')+'</div>';
   el.innerHTML=h;
 }
 $('itt').onclick=function(e){var b=e.target.closest('.tk');if(!b)return;IK=b.getAttribute('data-k');IV='ls';$('isq').value='';infoView()};
+$('hcb').onclick=function(){SHN=SHN?0:1;this.classList.toggle('on',!!SHN);if(IV==='tt')renderTT();else if(IV==='ls')renderInfo()};
 $('ivb').onclick=function(e){var b=e.target.closest('button');if(!b)return;if(b.getAttribute('data-v')==='ac'&&window.matchMedia('(pointer:coarse)').matches){window.open('admin.html','_blank');return}IV=b.getAttribute('data-v');IK='';infoView()};
 function openM(m){
   document.body.setAttribute('data-m',m);
