@@ -23,13 +23,9 @@ body[data-m=info]{--a:#5B3E96;--soft:#EDE7F7}
 header{display:flex;align-items:center;gap:18px;padding:12px 22px;background:#fff;border-bottom:1px solid var(--line)}
 .brand{font-weight:800;font-size:20px;letter-spacing:.08em;color:var(--a)}
 nav{display:flex;gap:8px;flex:1}
-nav a,nav button{font:inherit;font-size:15px;font-weight:700;padding:9px 20px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--sub);text-decoration:none;cursor:pointer}
+nav a,nav button{font:inherit;font-size:15px;font-weight:700;width:112px;padding:9px 0;text-align:center;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--sub);text-decoration:none;cursor:pointer}
 nav .mon.on{background:#1E3A6E;color:#fff;border-color:#1E3A6E}
 nav .info.on{background:#5B3E96;color:#fff;border-color:#5B3E96}
-nav .mon{color:#1E3A6E;border-color:#c9d5ec;background:#f1f5fc}
-nav .room{color:#B4532A;border-color:#f0d3c3;background:#fdf4ee}
-nav .rec{color:#9B2D5A;border-color:#ecc9d8;background:#fbf0f4}
-nav .info{color:#5B3E96;border-color:#d9cdee;background:#f6f2fb}
 nav .mon.on{background:#1E3A6E;color:#fff;border-color:#1E3A6E}
 nav .room.on{background:#B4532A;color:#fff;border-color:#B4532A}
 nav .rec.on{background:#9B2D5A;color:#fff;border-color:#9B2D5A}
@@ -83,8 +79,8 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 22px 18
   <nav>
     <button class="mon on" data-m="mon">모니터링</button>
     <button class="room" data-m="room">자료실</button>
-    <button class="rec" data-m="hw">숙제 검사</button>
-    <button class="info" data-m="info">학생 정보</button>
+    <button class="rec" data-m="hw">숙제검사</button>
+    <button class="info" data-m="info">학생정보</button>
   </nav>
   <div class="clk" id="clk"></div>
 </header>
