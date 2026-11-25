@@ -39,20 +39,31 @@
     o.onclick=function(e){if(e.target===o)o.parentNode.removeChild(o)};
     o.appendChild(b);D.body.appendChild(o);
   }
+  function fin(){
+    if(D.getElementById('vfin'))return;
+    var o=D.createElement('div');o.id='vfin';o.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;z-index:2147483646;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px';
+    var b=D.createElement('div');b.style.cssText='background:#fff;border-radius:16px;padding:26px 20px;max-width:340px;width:100%;text-align:center;font-family:sans-serif';
+    var h=D.createElement('div');h.textContent='오늘의 학습을 마쳤어요';h.style.cssText='font:700 20px/1.4 sans-serif;color:#111;margin-bottom:6px';b.appendChild(h);
+    var p=D.createElement('div');p.textContent='기록이 저장됐어요';p.style.cssText='font:15px/1.4 sans-serif;color:#555;margin-bottom:18px';b.appendChild(p);
+    function btn(t,bg,fg,fn){var x=D.createElement('button');x.type='button';x.textContent=t;x.style.cssText='display:block;width:100%;margin-top:10px;padding:15px 0;border:0;border-radius:12px;font:700 17px/1 sans-serif;background:'+bg+';color:'+fg;x.onclick=fn;b.appendChild(x)}
+    btn('오늘의 학습으로','#1f2937','#fff',go);
+    btn('점수 보기','#e5e7eb','#111',function(){o.parentNode.removeChild(o)});
+    o.appendChild(b);D.body.appendChild(o);
+  }
   function add(){
     if(D.getElementById('vhome'))return;
     var s=D.createElement('style');
     s.textContent='.rst{display:none!important}html{padding-top:calc(46px + env(safe-area-inset-top,0px))!important}#vhome{position:fixed;top:0;left:0;right:0;height:calc(46px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 0 0 16px;box-sizing:border-box;z-index:2147483000;background:#1f2937;color:#fff;font:700 16px/46px sans-serif;text-align:left;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.25)}';
     D.head.appendChild(s);
     var a=D.createElement('a');a.id='vhome';a.href='/vita/';a.textContent='← 오늘의 학습';
-    a.addEventListener('click',function(e){e.preventDefault();if(!at||auto||sent||wired())go();else ask()});
+    a.addEventListener('click',function(e){e.preventDefault();if(!at||at.r||auto||sent||wired())go();else ask()});
     D.body.appendChild(a);
   }
   if(D.body)add();else D.addEventListener('DOMContentLoaded',add);
   D.addEventListener('click',function(e){var t=e.target&&e.target.closest?e.target:null;if(!t)return;var a=t.closest('a');
     if(a&&a.id!=='vhome'&&a.textContent.trim()==='홈으로'){e.preventDefault();go();return}
     var b=t.closest('button');
-    if(b&&b.textContent.trim()==='제출'){var n=0,iv=setInterval(function(){n++;if(D.querySelector('#sbar .score')){clearInterval(iv);auto=true;mark()}else if(n>25)clearInterval(iv)},300)}
+    if(b&&b.textContent.trim()==='제출'){var n=0,iv=setInterval(function(){n++;if(D.querySelector('#sbar .score')){clearInterval(iv);auto=true;mark();fin()}else if(n>25)clearInterval(iv)},300)}
   },true);
   function ren(){var b=D.querySelectorAll('button');for(var j=0;j<b.length;j++){if(/비우기/.test(b[j].textContent))b[j].style.display='none'}var l=D.querySelectorAll('a');for(var i=0;i<l.length;i++){if(l[i].id!=='vhome'&&l[i].textContent.trim()==='홈으로')l[i].style.display='none'}}
   try{new MutationObserver(ren).observe(D.documentElement,{childList:true,subtree:true})}catch(e){}
