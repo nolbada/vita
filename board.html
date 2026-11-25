@@ -123,6 +123,13 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 .tr{margin-top:12px;font-size:13px;color:var(--sub)}
 
 .ip .in em{font-style:normal;font-size:12px;font-weight:600;color:var(--a);margin-left:8px}
+
+.ip{cursor:pointer}
+.sr{padding:10px 0;border-top:1px solid var(--line)}
+.sh{display:flex;justify-content:space-between;font-size:14px}
+.sh span{color:var(--sub);font-size:12px}
+.sb{font-size:14px;margin-top:3px}
+.sm{font-size:12px;color:var(--sub);margin-top:2px}
 </style>
 </head>
 <body data-m="mon">
@@ -152,7 +159,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
 import {getAuth,GoogleAuthProvider,signInWithPopup,signInWithRedirect,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';
-import {getFirestore,doc,getDoc,onSnapshot} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+import {getFirestore,doc,getDoc,onSnapshot,collection,getDocs} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
 var app=initializeApp({apiKey:"AIzaSyC88G-OjMJOqVqnIVqunzh7fvk91wtKKnA",authDomain:"h-roadmap.firebaseapp.com",projectId:"h-roadmap",appId:"1:575520405083:web:b9f40b64cb0ae3d1a9317e"},'hwfs');
 var auth=getAuth(app),db=getFirestore(app);
 var $=function(i){return document.getElementById(i)};
@@ -319,17 +326,29 @@ function renderInfo(){
   $('icnt').textContent=IK?(infoCls(IK)+' · '+L.length+'명'):('재원 '+all.length+'명'+(q?' · 검색 '+L.length+'명':''));
   el.innerHTML=L.length?'<div class="ic">'+L.map(function(s){
     var sub=[s.school||'',s.grade||''].filter(Boolean).join(' · ');
-    return '<div class="ip"><div class="in">'+esc(s.name)+'<em>'+esc(infoCls(s.cls))+'</em></div><div class="is">'+(esc(sub)||'학교·학년 미입력')+'</div><div class="ik">'+(s.fri?'<span class="on">금</span>':'')+(s.sat?'<span class="on">토</span>':'')+'<span>아이디 미연결</span><span>성적표 미연결</span></div></div>';
+    return '<div class="ip" data-n="'+esc(s.name)+'"><div class="in">'+esc(s.name)+'<em>'+esc(infoCls(s.cls))+'</em></div><div class="is">'+(esc(sub)||'학교·학년 미입력')+'</div><div class="ik">'+(s.fri?'<span class="on">금</span>':'')+(s.sat?'<span class="on">토</span>':'')+'<span>아이디 미연결</span>'+scChip(s)+'</div></div>';
   }).join('')+'</div>':'<div class="empty">표시할 학생이 없습니다</div>';
 }
 $('isq').oninput=renderInfo;
 
+var SC=null,SCL=0,SCE=0;
+function scChip(s){if(SCE)return '<span>성적표 읽기 실패</span>';if(!SC)return '<span>성적표 확인 중</span>';var a=SC[nm(s.name)];return a?(a.length?'<span class="on">성적 '+a.length+'건</span>':'<span>성적 없음</span>'):'<span>성적표 미연결</span>'}
+async function loadSC(){if(SC||SCL)return;SCL=1;try{var s=await getDocs(collection(db,'sc')),o={};s.docs.forEach(function(x){var d=x.data();o[nm(d.name)]=d.rec||[]});SC=o}catch(e){SCE=1}renderInfo()}
+function showSC(name){
+  var a=((SC&&SC[nm(name)])||[]).slice().sort(function(x,y){return String(y.d||'').localeCompare(String(x.d||''))});
+  $('ov').innerHTML='<div class="pop"><h2>'+esc(name)+'</h2><div class="tg">성적 '+a.length+'건</div>'+(a.map(function(e){
+    var rt=e.r||Object.keys(e.v||{}).map(function(k){return k+' '+e.v[k]}).join(' · ');
+    return '<div class="sr"><div class="sh"><b>'+esc(e.t||'')+'</b><span>'+esc(e.d||'')+'</span></div><div class="sb">'+esc(rt)+'</div>'+(e.m?'<div class="sm">'+esc(e.m)+'</div>':'')+'</div>';
+  }).join('')||'<div class="tg">기록 없음</div>')+'</div>';
+  $('ov').classList.remove('hide');
+}
+$('ilist').onclick=function(e){var c=e.target.closest('.ip');if(!c||!SC)return;showSC(c.getAttribute('data-n'))};
 var IV='tt',IK='';
 function infoView(){
   document.querySelectorAll('#ivb button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===IV)});
   $('itt').classList.toggle('hide',IV!=='tt');$('ilist').classList.toggle('hide',IV!=='ls');
   $('isq').style.display=IV==='ls'?'':'none';
-  if(IV==='tt')renderTT();else renderInfo();
+  if(IV==='tt')renderTT();else{renderInfo();loadSC()}
 }
 function renderTT(){
   var el=$('itt');
