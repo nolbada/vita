@@ -110,6 +110,17 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 .ik{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .ik span{font-size:11px;padding:3px 8px;border-radius:999px;background:#f1f3f8;color:#8a93a6}
 .ik span.on{background:var(--soft);color:var(--a);font-weight:700}
+
+.iv{display:flex;gap:6px}
+#itt{flex:1;min-height:0;overflow-y:auto;padding-bottom:12px}
+.tt{display:grid;grid-template-columns:62px 1fr 1fr;gap:8px;align-items:stretch}
+.th{text-align:center;font-weight:700;color:var(--a);padding:6px 0;font-size:15px}
+.tl{font-weight:700;font-size:14px;display:flex;flex-direction:column;justify-content:center}
+.tl small{color:var(--sub);font-size:11px;font-weight:600}
+.tc{display:flex;flex-wrap:wrap;gap:6px;background:#fff;border:1px solid var(--ln);border-radius:12px;padding:8px;min-height:56px;align-content:flex-start}
+.tk{border:1px solid var(--ln);background:var(--soft);color:var(--a);border-radius:10px;padding:6px 10px;font:inherit;display:flex;flex-direction:column;align-items:center;cursor:pointer;min-width:64px}
+.tk b{font-size:14px}.tk span{font-size:12px;color:var(--sub)}
+.tr{margin-top:12px;font-size:13px;color:var(--sub)}
 </style>
 </head>
 <body data-m="mon">
@@ -133,7 +144,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
   <div id="p-room" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-room" title="학습지정"></iframe></div>
   <div id="p-hw" class="hide" style="flex:1;min-height:0;display:flex"><iframe class="fr" id="f-hw" title="숙제 검사"></iframe></div>
   <div id="p-cls" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="bar" style="padding:12px 22px 0;margin:0"><button class="pill on" data-t="여">여쌤</button><button class="pill" data-t="남">남쌤</button></div><div id="clist"></div></div>
-  <div id="p-info" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="itb"><input id="isq" type="search" placeholder="이름 검색" autocomplete="off"><span id="icnt"></span></div><div id="ilist"></div></div>
+  <div id="p-info" class="hide" style="flex:1;min-height:0;display:flex;flex-direction:column"><div class="itb"><div class="iv" id="ivb"><button class="pill on" data-v="tt">시간표</button><button class="pill" data-v="ls">명단</button></div><input id="isq" type="search" placeholder="이름 검색" autocomplete="off" style="display:none"><span id="icnt"></span></div><div id="itt"></div><div id="ilist" class="hide"></div></div>
 </main>
 <div id="ov" class="ov hide"></div>
 <script type="module">
@@ -302,7 +313,7 @@ function renderInfo(){
   var el=$('ilist'),q=nm($('isq').value||'');
   if(!BOOT){el.innerHTML='';$('icnt').textContent='';return}
   var all=ST.filter(function(s){return !/체험/.test(s.cls||'')});
-  var L=all.filter(function(s){return !q||nm(s.name).indexOf(q)>-1});
+  var L=all.filter(function(s){return (!q||nm(s.name).indexOf(q)>-1)&&(!IK||s.cls===IK)});
   var g={};L.forEach(function(s){(g[s.cls]=g[s.cls]||[]).push(s)});
   var ks=Object.keys(g).sort(function(a,b){return a.localeCompare(b,'ko')});
   $('icnt').textContent='재원 '+all.length+'명'+(q?' · 검색 '+L.length+'명':'');
@@ -315,6 +326,37 @@ function renderInfo(){
   }).join('')||'<div class="empty">표시할 학생이 없습니다</div>';
 }
 $('isq').oninput=renderInfo;
+
+var IV='tt',IK='';
+function infoView(){
+  document.querySelectorAll('#ivb button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-v')===IV)});
+  $('itt').classList.toggle('hide',IV!=='tt');$('ilist').classList.toggle('hide',IV!=='ls');
+  $('isq').style.display=IV==='ls'?'':'none';
+  if(IV==='tt')renderTT();else renderInfo();
+}
+function renderTT(){
+  var el=$('itt');
+  if(!BOOT){el.innerHTML='';$('icnt').textContent='';return}
+  var cnt={},tot=0;
+  ST.forEach(function(s){if(/체험/.test(s.cls||''))return;cnt[s.cls]=(cnt[s.cls]||0)+1;tot++});
+  $('icnt').textContent='재원 '+tot+'명';
+  var cols=['월수','화목'],sl={},en={};
+  Object.keys(TT).forEach(function(k){var x=TT[k];if(!x||!x.s)return;sl[x.s]=sl[x.s]||{};sl[x.s][x.d]=(sl[x.s][x.d]||[]).concat(k);if(x.e&&!en[x.s])en[x.s]=x.e});
+  var times=Object.keys(sl).sort();
+  var h='<div class="tt"><div></div>'+cols.map(function(c){return '<div class="th">'+c+'</div>'}).join('');
+  times.forEach(function(tm){
+    h+='<div class="tl">'+tm+(en[tm]?'<small>~'+en[tm]+'</small>':'')+'</div>';
+    cols.forEach(function(c){
+      h+='<div class="tc">'+(sl[tm][c]||[]).map(function(k){return '<button class="tk" data-k="'+esc(k)+'"><b>'+esc(infoCls(k).replace(/^(월수|화목) /,''))+'</b><span>'+(cnt[k]||0)+'명</span></button>'}).join('')+'</div>';
+    });
+  });
+  h+='</div>';
+  var rest=Object.keys(cnt).filter(function(k){return !TT[k]});
+  if(rest.length)h+='<div class="tr">시간표에 없는 반: '+rest.map(function(k){return esc(infoCls(k))+' '+cnt[k]+'명'}).join(' · ')+'</div>';
+  el.innerHTML=h;
+}
+$('itt').onclick=function(e){var b=e.target.closest('.tk');if(!b)return;IK=b.getAttribute('data-k');IV='ls';$('isq').value='';infoView()};
+$('ivb').onclick=function(e){var b=e.target.closest('button');if(!b)return;IV=b.getAttribute('data-v');IK='';infoView()};
 function openM(m){
   document.body.setAttribute('data-m',m);
   document.querySelectorAll('nav button').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-m')===m)});
@@ -326,7 +368,7 @@ function openM(m){
   if(m==='cls'&&!CLSINIT){CLSINIT=1;setCls('여')}
   if(!BOOT){$('lg').classList.toggle('hide',!(m==='mon'||m==='room'||m==='hw'||m==='info'));$('p-room').classList.add('hide');$('p-hw').classList.add('hide');$('p-info').classList.add('hide')}
   if(FRS[m]&&BOOT){var f=$('f-'+m);if(!f.getAttribute('src'))f.setAttribute('src',FRS[m])}
-  if(m==='info')renderInfo();
+  if(m==='info'){IV='tt';IK='';$('isq').value='';infoView()}
   try{history.replaceState(null,'',location.pathname+location.search+(m==='mon'?'':'#'+m))}catch(e){}
 }
 document.querySelector('nav').onclick=function(e){
