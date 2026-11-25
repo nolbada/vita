@@ -191,10 +191,10 @@ function renderFri(){
   var n=L.length,c=n<=9?3:(n<=15?5:6),r=Math.ceil(n/c);
   g.style.gridTemplateColumns='repeat('+c+',1fr)';g.style.gridTemplateRows='repeat('+r+',1fr)';
   g.innerHTML=L.map(function(a){
-    var at=a.rec.arrive?hm(a.rec.arrive):'',rm=a.rec.teacher?(a.rec.teacher+'\uC313'):'';
+    var at=a.rec.arrive?hm(a.rec.arrive):'',rm=a.rec.teacher?(a.rec.teacher+'쌤'):'';
     var sub=[a.s?a.s.cls.replace(/^[MT]/,''):'',at,rm].filter(Boolean).join(' \u00B7 ');
     var f=a.s&&DATA[a.s.id]?info(a.s.id):null;
-    if(!f){return '<div class="st em"><div><div class="n">'+esc(a.name)+'</div><div class="tg">'+esc(sub)+'</div><div class="hw">'+(a.s?'기록 불러오는 중':'EM 기록')+'</div></div></div>'}
+    if(!f){return '<div class="st em"><div><div class="n">'+esc(a.name)+'</div><div class="tg">'+esc(sub)+'</div><div class="hw">'+(a.s&&DATA[a.s.id]===undefined?'기록 불러오는 중':'EM 기록')+'</div></div></div>'}
     var segs='',h=hwOf(a.s.id),ht='숙제 검사 전',hx=false;
     if(h&&h.all){var p=[];if(h.O)p.push('O '+h.O);if(h.T)p.push('\u25B3 '+h.T);if(h.X){p.push('X '+h.X);hx=true}ht='숙제 '+p.join(' \u00B7 ')}
     f.rows.forEach(function(x){if(x.o)return;segs+='<i class="'+(x.d?'d':'')+'"></i>'});
@@ -204,7 +204,7 @@ function renderFri(){
 function bar(){
   var sl=slots();
   var md=[['reg','Day 1'],['reg2','Day 2'],['fri','Friday'],['mkp','Saturday']];
-  $('bar').innerHTML=md.map(function(a){return '<button class="pill'+(a[0]===M?' on':'')+'" data-md="'+a[0]+'">'+a[1]+'</button>'}).join('')+'<div class="sep"></div>'+(M==='fri'?[['','\uC804\uCCB4'],['\uB0A8','\uB0A8\uC313'],['\uC5EC','\uC5EC\uC313']].map(function(a){return '<button class="pill'+(a[0]===RM?' on':'')+'" data-rm="'+a[0]+'">'+a[1]+'</button>'}).join(''):sl.map(function(x,i){return '<button class="pill'+(i===SL?' on':'')+'" data-sl="'+i+'">'+x.t.join(' / ')+'</button>'}).join(''));
+  $('bar').innerHTML=md.map(function(a){return '<button class="pill'+(a[0]===M?' on':'')+'" data-md="'+a[0]+'">'+a[1]+'</button>'}).join('')+'<div class="sep"></div>'+(M==='fri'?[['','\uC804\uCCB4'],['\uB0A8','\uB0A8쌤'],['\uC5EC','\uC5EC쌤']].map(function(a){return '<button class="pill'+(a[0]===RM?' on':'')+'" data-rm="'+a[0]+'">'+a[1]+'</button>'}).join(''):sl.map(function(x,i){return '<button class="pill'+(i===SL?' on':'')+'" data-sl="'+i+'">'+x.t.join(' / ')+'</button>'}).join(''));
 }
 function render(){
   bar();
