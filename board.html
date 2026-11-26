@@ -101,7 +101,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 #p-info .itb{display:flex;align-items:center;gap:10px;margin:0 0 10px}
 #isq{flex:1;min-width:0;height:42px;border:1px solid var(--ln);border-radius:12px;padding:0 14px;font:inherit;font-size:15px;background:#fff;color:var(--ink)}
 #ov .lgr{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}#ov .lgr select,#ov .lgr input{font:inherit;font-size:14px;height:38px;border:1px solid var(--ln);border-radius:10px;padding:0 8px;background:#fff}#ov #lgx{width:100%;font:inherit;font-size:14px;border:1px solid var(--ln);border-radius:10px;padding:8px;resize:vertical}#ov .lgb{font:inherit;font-weight:700;height:38px;border-radius:10px;border:0;padding:0 16px;background:var(--a);color:#fff;cursor:pointer}.lgdel{font:inherit;font-size:12px;color:#B3261E;background:none;border:0;cursor:pointer;padding:4px 0}#icn{flex:1;min-height:0;overflow-y:auto;padding-bottom:12px}.cnr{background:#fff;border:1px solid var(--ln);border-radius:12px;padding:10px 14px;margin-bottom:8px;cursor:pointer}.cnr .sh{display:flex;gap:8px;align-items:baseline}.cnr .sh span,.cnr .sh i{font-size:13px;color:var(--sub);font-style:normal}.cnr .sb{font-size:14px;margin-top:4px;white-space:pre-wrap}
-.pc{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:9px;font-size:11px;font-weight:700;vertical-align:middle}.pc.g{background:#DDF3E4;color:#1B6B3A}.pc.o{background:#FFE9D2;color:#B35A00}.rc{font-size:12px;color:#5a6b7a;margin-top:4px;line-height:1.4;white-space:pre-line;text-align:left}
+.pc{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:9px;font-size:12px;font-weight:700;vertical-align:middle}.pc.g{background:#DDF3E4;color:#1B6B3A}.pc.o{background:#FFE9D2;color:#B35A00}.rc{font-size:12px;color:#5a6b7a;margin-top:4px;line-height:1.4;white-space:pre-line;text-align:left}
 #hcb{order:3;flex:none;padding:6px 12px;font-size:13px}
 #icnt{font-size:14px;font-weight:700;color:var(--a);white-space:nowrap}
 #ilist{flex:1;min-height:0;overflow-y:auto;padding-bottom:12px}
@@ -275,7 +275,7 @@ function autoOf(s,c){
 }
 function chipOf(s){
   var x=DATA[s.id];if(M!==defMode()||!x||!(x.items||[]).some(function(it){return /^bd-/.test(it.c||'')}))return '';
-  var p=preBd(s);return '<span class="pc '+(p?'g':'o')+'">'+(p?'수업 전 기록':'수업 전 없음')+'</span>'
+  var p=preBd(s),m=p&&/(\d+)\s*\/\s*(\d+)\s*$/.exec(p.w||'');return '<span class="pc '+(p?'g':'o')+'">'+(p?(m?'비단챌 '+m[1]+'/'+m[2]:'수업 전 기록'):'수업 전 없음')+'</span>'
 }
 function info(id){
   var x=DATA[id];if(!x)return null;var st0=ST.filter(function(q){return q.id===id})[0];
