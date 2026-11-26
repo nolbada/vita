@@ -468,13 +468,12 @@ function renderCal(){
   h+='<div class="chd"><button data-cn="-1">‹</button><b>'+CY+'년 '+(CM+1)+'월</b><button data-cn="1">›</button><button data-cn="0">오늘</button></div>';
   h+='<div class="cwk"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>';
   function pins(d){var y=ymd(d),r='';CAL.forEach(function(e,ix){if(e.p&&e.s===y){var k=CK[e.k]||CK.etc;r+='<div class="pn" data-i="'+ix+'" style="--pk:'+k[1]+'">'+esc(e.n)+'</div>'}});return r}
-  var PM={};CAL.forEach(function(e){if(e.p&&!PM[e.s])PM[e.s]=CK[e.k]||CK.etc});
   var first=new Date(CY,CM,1),start=new Date(CY,CM,1-first.getDay()),last=new Date(CY,CM+1,0);
   for(var w=new Date(start);w<=last;w=new Date(w.getFullYear(),w.getMonth(),w.getDate()+7)){
     var days=[];for(var i=0;i<7;i++)days.push(new Date(w.getFullYear(),w.getMonth(),w.getDate()+i));
     var ws=ymd(days[0]),we=ymd(days[6]);
     h+='<div class="cw">';
-    days.forEach(function(d,i){var pk=PM[ymd(d)];h+='<div class="cd'+(d.getMonth()!==CM?' o':'')+(ymd(d)===today?' td':'')+(i===0?' su':i===6?' sa':'')+'" style="grid-column:'+(i+1)+';grid-row:1"><b'+(pk?' style="background:'+pk[1]+';color:'+pk[2]+'"':'')+'>'+d.getDate()+'</b></div>'});
+    days.forEach(function(d,i){h+='<div class="cd'+(d.getMonth()!==CM?' o':'')+(ymd(d)===today?' td':'')+(i===0?' su':i===6?' sa':'')+'" style="grid-column:'+(i+1)+';grid-row:1"><b>'+d.getDate()+'</b></div>'});
     var ev=[];CAL.forEach(function(e,ix){var s=e.s,f=e.e||e.s;if(!e.p&&s<=we&&f>=ws)ev.push({ix:ix,a:s<ws?0:pd(s).getDay()-0,b:f>we?6:pd(f).getDay(),s:s})});
     ev.sort(function(x,y){return x.a-y.a||y.b-x.b});
     var lanes=[];
