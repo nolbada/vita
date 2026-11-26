@@ -156,7 +156,7 @@ function render(){
   $('hi').textContent=me+'님';
   var have=TABS.filter(function(k){return info(k).m.length>0&&(k!=='mkp'||(D.mkp&&D.mkp.on===true))});
   if(!have.length){$('tabs').innerHTML='';$('cards').innerHTML='<div class="card"><div class="sub">지정된 학습이 없습니다</div></div>'+refBox();return}
-  if(!CUR||have.indexOf(CUR)<0){CUR=savedTab(have);if(!CUR){var w=new Date().getDay(),dd=w===5?'fri':(w===6?'mkp':(info('reg').full&&have.indexOf('reg2')>-1?'reg2':'reg'));CUR=have.indexOf(dd)>-1?dd:have[0]}}
+  if(!CUR||have.indexOf(CUR)<0){CUR=savedTab(have);if(!CUR){var w=new Date().getDay(),dd=w===5?'fri':(w===6?'mkp':((w===3||w===4||info('reg').full)&&have.indexOf('reg2')>-1?'reg2':'reg'));CUR=have.indexOf(dd)>-1?dd:have[0]}}
   $('tabs').innerHTML=have.map(function(k){return '<button data-t="'+k+'"'+(k===CUR?' class="on"':'')+'>'+TS[k]+'</button>'}).join('');
   $('stamps').innerHTML=have.map(function(k){var f=info(k),left=f.rq-f.dn;return '<button data-s="'+k+'" class="'+(f.full?'full ':'')+(k===CUR?'cur':'')+'"><div class="c" style="--p:'+(f.rq?Math.round(f.dn/f.rq*100):0)+'">'+(f.full?'&#10003;':'')+'</div><b>'+TS[k]+'</b><small>'+(f.full?'모두 완료':f.dn+'/'+f.rq+' · 남은 '+left+'개')+'</small></button>'}).join('');
   $('cards').innerHTML=[CUR].map(function(k){
