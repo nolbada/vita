@@ -39,7 +39,7 @@
     function btn(t,bg,fg,fn){var x=D.createElement('button');x.type='button';x.textContent=t;x.style.cssText='display:block;width:100%;margin-top:10px;padding:15px 0;border:0;border-radius:12px;font:700 17px/1 sans-serif;background:'+bg+';color:'+fg;x.onclick=fn;b.appendChild(x)}
     btn('예','#1f2937','#fff',function(){okd=true;Promise.race([mark(),new Promise(function(r){setTimeout(r,2500)})]).then(go,go)});
     btn('아니오','#e5e7eb','#111',function(){o.parentNode.removeChild(o)});
-    if(!auto){var z=D.createElement('button');z.type='button';z.textContent='나중에 이어서 하기';z.style.cssText='display:block;width:100%;margin-top:14px;padding:8px 0;border:0;background:none;font:14px/1 sans-serif;color:#777;text-decoration:underline';z.onclick=go;b.appendChild(z)}
+    {var z=D.createElement('button');z.type='button';z.textContent='나중에 이어서 하기';z.style.cssText='display:block;width:100%;margin-top:14px;padding:8px 0;border:0;background:none;font:14px/1 sans-serif;color:#777;text-decoration:underline';z.onclick=go;b.appendChild(z)}
     o.onclick=function(e){if(e.target===o)o.parentNode.removeChild(o)};
     o.appendChild(b);D.body.appendChild(o);
   }
