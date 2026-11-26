@@ -161,7 +161,7 @@ function render(){
     f.m.forEach(function(it,i){if(first<0&&!isD(k,i)&&!isOpt(it))first=i});
     var items=f.m.map(function(it,i){
       var dn=isD(k,i);
-      return '<div class="task'+(dn?' done':'')+(i===first?' now':'')+(it.u?' lk':'')+(isOpt(it)?' opt':'')+'" data-k="'+k+'" data-i="'+i+'"><div class="no">'+(i+1)+'</div><div class="tx"><div class="nm">'+esc(it.n)+'</div><div class="tg">'+esc(it.t||'')+'</div></div>'+(dn?'':'<div class="go">&rsaquo;</div>')+'<button class="ck" data-ck="1">'+(dn?'취소':'학습완료')+'</button></div>';
+      return '<div class="task'+(dn?' done':'')+(i===first?' now':'')+(it.u?' lk':'')+(isOpt(it)?' opt':'')+'" data-k="'+k+'" data-i="'+i+'"><div class="no">'+(i+1)+'</div><div class="tx"><div class="nm">'+esc(it.n)+'</div><div class="tg">'+esc(it.t||'')+'</div></div>'+(it.u?'<button class="ck" data-lk="1">학습링크</button>':'')+'</div>';
     }).join('');
     return '<div class="dcard" id="dc'+k+'"><div class="dh"><b>'+TN[k]+'</b><span class="cnt">'+f.rq+'개 중 '+f.dn+'개 완료</span></div><div class="prog"><i style="width:'+(f.rq?f.dn/f.rq*100:0)+'%"></i></div>'+items+'</div>';
   }).join('')+refBox();
@@ -243,23 +243,22 @@ $('cards').onclick=async function(e){
   var k=t.getAttribute('data-k'),i=+t.getAttribute('data-i'),d0=dk(k),ix=i+off(k),x=D[d0],now=Date.now(),it=x.items[i];
   var isDone=isD(k,i);
   var u={};
-  if(e.target.closest('.ck')){
-    if(isDone){u['done.'+ix]=deleteField();u.t=now}
-    else{u['done.'+ix]=now;u.t=now;if(!x.start)u.start=now}
-    try{
-      await updateDoc(doc(db,'vday',uid,'days',d0),u);
-      x.done=x.done||{};
-      if(isDone)delete x.done[ix];else{x.done[ix]=now;if(!x.start)x.start=now}
-      x.t=now;render();
-    }catch(er){}
-    return;
+  if(e.target.closest('[data-lk]')){
+    if(!it.u)return;
+    if(!x.start){
+      u.start=now;u.t=now;
+      try{await updateDoc(doc(db,'vday',uid,'days',d0),u);x.start=now;x.t=now}catch(er){}
+    }
+    try{sessionStorage.setItem('vita-in','1');sessionStorage.setItem('vita-at',JSON.stringify({k:k,i:i,r:/^rd-/.test(it.c||'')?1:0}));sessionStorage.removeItem('vita-mk')}catch(e){}wnSet();location.href=lk(it.u,k,i);return;
   }
-  if(isDone)return;
-  if(!x.start){
-    u.start=now;u.t=now;
-    try{await updateDoc(doc(db,'vday',uid,'days',d0),u);x.start=now;x.t=now}catch(er){}
-  }
-  if(it.u){try{sessionStorage.setItem('vita-in','1');sessionStorage.setItem('vita-at',JSON.stringify({k:k,i:i,r:/^rd-/.test(it.c||'')?1:0}));sessionStorage.removeItem('vita-mk')}catch(e){}wnSet();location.href=lk(it.u,k,i)}
+  if(isDone){u['done.'+ix]=deleteField();u.t=now}
+  else{u['done.'+ix]=now;u.t=now;if(!x.start)u.start=now}
+  try{
+    await updateDoc(doc(db,'vday',uid,'days',d0),u);
+    x.done=x.done||{};
+    if(isDone)delete x.done[ix];else{x.done[ix]=now;if(!x.start)x.start=now}
+    x.t=now;render();
+  }catch(er){}
 };
 function savedTab(have){try{var d=new Date().toDateString(),p=(sessionStorage.getItem('vita-tab')||'').split('|');if(p[0]===d&&have.indexOf(p[1])>-1)return p[1];var a=JSON.parse(sessionStorage.getItem('vita-at')||'null');if(a&&sessionStorage.getItem('vita-in')==='1'&&have.indexOf(a.k)>-1)return a.k}catch(e){}return ''} function saveTab(){try{sessionStorage.setItem('vita-tab',new Date().toDateString()+'|'+CUR)}catch(e){}} function wnSet(){try{var L=localStorage,n=String(me||'').replace(/\s+/g,'');if(!n)return;var b=L.getItem('bd-name');if(b&&b.replace(/\s+/g,'')!==n){L.removeItem('bd-name');L.removeItem('bd-cls');L.removeItem('bd-t')}var o=(L.getItem('dv-owner')||L.getItem('wn_name')||'').replace(/\s+/g,'');if(o&&o!==n){Object.keys(L).filter(function(k){return k.indexOf('dv_got_')===0||k==='wn_q'||k==='wn_hq'}).forEach(function(k){L.removeItem(k)});try{sessionStorage.removeItem('dv-rst')}catch(e){}}L.setItem('dv-owner',n);L.setItem('wn_name',n);L.setItem('vita-wn',n)}catch(e){}} function wnOff(){try{var L=localStorage,v=L.getItem('vita-wn');if(v&&L.getItem('wn_name')===v){var q=L.getItem('wn_q');if(!q||q==='[]'){L.removeItem('wn_name');L.removeItem('dv-owner')}}L.removeItem('vita-wn')}catch(e){}} function lk(u,k,i){if(/\/via\/wama2000\//.test(u))return '/via/wrap/?u='+encodeURIComponent(u);if(!/\/via\/vsignal-[ke]\//.test(u))return u;return u+(u.indexOf('?')<0?'?':'&')+'vd='+k+'&vi='+i}
 var lastLd=0;
