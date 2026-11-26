@@ -352,11 +352,11 @@ function renderFri(){
     return '<button class="st'+(f.rq&&f.dn===f.rq?' full':'')+(hx?' hx':'')+'" data-id="'+a.s.id+'"><div><div class="n">'+esc(a.name)+'</div><div class="tg">'+esc(sub)+'</div><div class="hw'+(hx?' x':'')+'">'+ht+'</div></div><div><div class="seg">'+segs+'</div><div class="ft"><b>'+f.dn+' / '+f.rq+'</b><span>'+(f.last?hm(f.last):'')+'</span></div></div></button>';
   }).join('');
 }
-function WD(){var s='',w,c=RD().getDay();for(w=1;w<=6;w++)s+='<button class="pill'+(w===c?' on':'')+'" data-dw="'+w+'">'+DAY[w]+'요일</button>';return s}
+function WD(){var s='',w,c=RD().getDay();for(w=1;w<=6;w++)s+='<button class="pill'+(w===c?' on':'')+'" data-dw="'+w+'">'+DAY[w]+'</button>';return s}
 function bar(){
   var sl=slots();
   var md=[['reg','Day 1'],['reg2','Day 2'],['fri','FRI']];
-  $('bar').innerHTML=md.map(function(a){return '<button class="pill'+(a[0]===M?' on':'')+'" data-md="'+a[0]+'">'+a[1]+'</button>'}).join('')+'<div class="br"></div>'+(isAtt()?[['','\uC804\uCCB4'],['\uB0A8','\uB0A8쌤'],['\uC5EC','\uC5EC쌤']].map(function(a){return '<button class="pill'+(a[0]===RM?' on':'')+'" data-rm="'+a[0]+'">'+a[1]+'</button>'}).join(''):sl.map(function(x,i){return '<button class="pill'+(i===SL?' on':'')+'" data-sl="'+i+'">'+x.t.join(' / ')+'</button>'}).join(''))+'<div class="br"></div>'+WD()+(OFF?'<span class="tg" style="align-self:center;margin:0 0 0 6px">'+(RD().getMonth()+1)+'/'+RD().getDate()+'('+DAY[RD().getDay()]+')'+(OFF>0?' 마감 시점 기록':' 미리 온 기록')+'</span>':'');
+  $('bar').innerHTML=(isAtt()?[['','\uC804\uCCB4'],['\uB0A8','\uB0A8쌤'],['\uC5EC','\uC5EC쌤']].map(function(a){return '<button class="pill'+(a[0]===RM?' on':'')+'" data-rm="'+a[0]+'">'+a[1]+'</button>'}).join(''):sl.map(function(x,i){return '<button class="pill'+(i===SL?' on':'')+'" data-sl="'+i+'">'+x.t.join(' / ')+'</button>'}).join(''))+'<div class="br"></div>'+WD()+(OFF?'<span class="tg" style="align-self:center;margin:0 0 0 6px">'+(RD().getMonth()+1)+'/'+RD().getDate()+'('+DAY[RD().getDay()]+')'+(OFF>0?' 마감 시점 기록':' 미리 온 기록')+'</span>':'');
 }
 var MY=[];try{MY=JSON.parse(localStorage.getItem('vitaMy')||'[]').filter(Boolean)}catch(e){MY=[]}
 function myBtn(){var b=$('bar');if(!b||isAtt())return;var x=document.createElement('button');x.className='pill'+(MY.length?' on':'');x.setAttribute('data-my','1');x.textContent=MY.length?('내 반 '+MY.length+'개'):'내 반';var br=b.querySelector('.br');if(br)b.insertBefore(x,br);else b.appendChild(x)}
