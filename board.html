@@ -149,10 +149,12 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 .cwk{display:grid;grid-template-columns:repeat(7,1fr);background:#fff;border:1px solid var(--ln);border-bottom:0;border-radius:14px 14px 0 0;overflow:hidden}
 .cwk span{text-align:center;padding:8px 0;font-size:13px;font-weight:700;color:var(--a);background:var(--soft)}
 .cwk span:first-child,.cd.su{color:#D32F2F}.cwk span:last-child,.cd.sa{color:#2F6FD6}
-.cw{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:minmax(24px,auto);background:#fff;border:1px solid var(--ln);border-top:0;position:relative;background-image:linear-gradient(90deg,transparent calc(100%/7 - 1px),#eef1f6 0);background-size:calc(100%/7) 100%}
+.cw{display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:minmax(24px,auto);background:#fff;border:1px solid var(--ln);border-top:0;position:relative;background-image:linear-gradient(90deg,transparent calc(100%/7 - 1px),#d3d9e4 0),linear-gradient(#F5F6F9,#F5F6F9),linear-gradient(#F5F6F9,#F5F6F9);background-size:calc(100%/7) 100%,calc(100%/7) 100%,calc(100%/7) 100%;background-position:0 0,0 0,100% 0;background-repeat:repeat-x,no-repeat,no-repeat}
 .cd{padding:5px 8px 2px;font-size:13px;font-weight:700;min-height:26px}
-.cd.o{color:#b5bcc9}.cd.td b{background:var(--a);color:#fff;border-radius:999px;padding:1px 7px}
-.ce{margin:2px 3px;padding:3px 8px;border-radius:7px;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;line-height:1.35;text-align:center}
+.cd b{display:inline-block;min-width:22px;height:22px;line-height:22px;text-align:center;border-radius:999px}
+.cd.o{color:#b5bcc9}.cd.td b{background:var(--a);color:#fff}
+.ce{margin:2px 3px;padding:3px 8px;border-radius:7px;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;line-height:1.35;text-align:center;position:relative}
+.ed{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;white-space:nowrap}
 .cf{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
 .cf input,.cf select{font:inherit;font-size:14px;height:40px;border:1px solid var(--ln);border-radius:10px;padding:0 10px;background:#fff;color:var(--ink)}
 .cf input[type=text]{flex:1;min-width:140px}
@@ -166,7 +168,7 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 .ef input[type=text]{flex:1 1 100%}
 .pop button.dd{background:#8a94a3}
 .cpl{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink)}.cpl input{height:auto}
-@media(max-width:640px){.ce{font-size:11px;padding:2px 5px;text-align:center}.cd{padding:4px 5px 2px}.pn{font-size:10px;padding:2px 4px}}
+@media(max-width:640px){.ed{font-size:10px;right:4px}.ce{font-size:11px;padding:2px 5px;text-align:center}.cd{padding:4px 5px 2px}.pn{font-size:10px;padding:2px 4px}}
 .ox{margin-top:22px}.ox h3{font-size:14px;color:var(--sub);margin:0 2px 8px}
 .ox div{display:flex;flex-wrap:wrap;gap:6px}.ox span{font-size:13px;padding:5px 11px;border-radius:999px;background:#eef1f6;color:var(--sub)}
 .ox a,.pop a.lk{display:inline-block;margin-top:10px;font-size:13px;color:var(--a);font-weight:700;text-decoration:none}
@@ -466,17 +468,20 @@ function renderCal(){
   h+='<div class="chd"><button data-cn="-1">‹</button><b>'+CY+'년 '+(CM+1)+'월</b><button data-cn="1">›</button><button data-cn="0">오늘</button></div>';
   h+='<div class="cwk"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>';
   function pins(d){var y=ymd(d),r='';CAL.forEach(function(e,ix){if(e.p&&e.s===y){var k=CK[e.k]||CK.etc;r+='<div class="pn" data-i="'+ix+'" style="--pk:'+k[1]+'">'+esc(e.n)+'</div>'}});return r}
+  var PM={};CAL.forEach(function(e){if(e.p&&!PM[e.s])PM[e.s]=CK[e.k]||CK.etc});
   var first=new Date(CY,CM,1),start=new Date(CY,CM,1-first.getDay()),last=new Date(CY,CM+1,0);
   for(var w=new Date(start);w<=last;w=new Date(w.getFullYear(),w.getMonth(),w.getDate()+7)){
     var days=[];for(var i=0;i<7;i++)days.push(new Date(w.getFullYear(),w.getMonth(),w.getDate()+i));
     var ws=ymd(days[0]),we=ymd(days[6]);
     h+='<div class="cw">';
-    days.forEach(function(d,i){h+='<div class="cd'+(d.getMonth()!==CM?' o':'')+(ymd(d)===today?' td':'')+'" style="grid-column:'+(i+1)+';grid-row:1"><b>'+d.getDate()+'</b></div>'});
+    days.forEach(function(d,i){var pk=PM[ymd(d)];h+='<div class="cd'+(d.getMonth()!==CM?' o':'')+(ymd(d)===today?' td':'')+(i===0?' su':i===6?' sa':'')+'" style="grid-column:'+(i+1)+';grid-row:1"><b'+(pk?' style="background:'+pk[1]+';color:'+pk[2]+'"':'')+'>'+d.getDate()+'</b></div>'});
     var ev=[];CAL.forEach(function(e,ix){var s=e.s,f=e.e||e.s;if(!e.p&&s<=we&&f>=ws)ev.push({ix:ix,a:s<ws?0:pd(s).getDay()-0,b:f>we?6:pd(f).getDay(),s:s})});
     ev.sort(function(x,y){return x.a-y.a||y.b-x.b});
     var lanes=[];
     ev.forEach(function(x){var L=0;while(lanes[L]!=null&&lanes[L]>=x.a)L++;lanes[L]=x.b;x.L=L});
-    ev.forEach(function(x){var e=CAL[x.ix],k=CK[e.k]||CK.etc;h+='<div class="ce" data-i="'+x.ix+'" style="grid-column:'+(x.a+1)+'/'+(x.b+2)+';grid-row:'+(x.L+2)+';background:'+mixc(k[1],255,.72)+';color:'+mixc(k[1],0,.5)+'">'+(hp(e)?'':esc(e.n))+'</div>'});
+    ev.forEach(function(x){var e=CAL[x.ix],k=CK[e.k]||CK.etc,f=e.e||e.s,st=e.s>=ws,en=f<=we,n=x.b-x.a+1,cap='3px solid '+k[1],hid=hp(e);
+      var ed=(en&&(n>=3||(n>=2&&hid)))?'<span class="ed">~ '+pd(f).getDate()+'('+DAY[pd(f).getDay()]+')</span>':'';
+      h+='<div class="ce" data-i="'+x.ix+'" style="grid-column:'+(x.a+1)+'/'+(x.b+2)+';grid-row:'+(x.L+2)+';background:'+mixc(k[1],255,.72)+';color:'+mixc(k[1],0,.5)+';'+(st?'border-left:'+cap+';':'')+(en?'border-right:'+cap+';':'')+'border-radius:'+(st?'7px':'0')+' '+(en?'7px':'0')+' '+(en?'7px':'0')+' '+(st?'7px':'0')+'">'+(hid?'':esc(e.n))+ed+'</div>'});
     var pw=[],used={};
     CAL.forEach(function(e,ix){if(e.p&&e.s>=ws&&e.s<=we)pw.push({ix:ix,c:pd(e.s).getDay()})});
     pw.forEach(function(p){var e=CAL[p.ix],bar=null;ev.forEach(function(x){if(!bar&&own(CAL[x.ix],e)&&x.a<=p.c&&p.c<=x.b)bar=x});
