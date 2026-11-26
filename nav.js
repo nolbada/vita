@@ -88,5 +88,5 @@
   setTimeout(function(){if(at)init().catch(function(){fb=null})},2500);
   D.addEventListener('visibilitychange',function(){if(D.visibilityState==='hidden')push()});
   W.addEventListener('pagehide',function(){push()});
-  setInterval(function(){push()},300000);
+  setInterval(function(){push()},300000); /* 보드로 가는 링크 막기: 학생 홈에서 들어온 활동의 "목록으로"·"보드" 링크는 EM보드가 아니라 오늘의 학습으로 보낸다. 보드에 남은 앞 학생 이름이 보이는 일을 막는다. */ D.addEventListener('click',function(e){try{var t=e.target,k=t&&t.closest?t.closest('a[href]'):null;if(!k)return;var u=new URL(k.getAttribute('href'),W.location.href);if(u.origin===W.location.origin&&/^\/board(\/|$)/.test(u.pathname)){e.preventDefault();e.stopPropagation();go()}}catch(x){}},true);
 }catch(e){}})();
