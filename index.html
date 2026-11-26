@@ -154,7 +154,7 @@ function render(){
   var d=new Date();
   $('hwbox').innerHTML=isT()?hwMemoBox():hwBox();$('hwchk').innerHTML=isT()?hwChkBox():'';$('dt').textContent=(d.getMonth()+1)+'/'+d.getDate()+'('+DAY[d.getDay()]+')';
   $('hi').textContent=me+'님';
-  try{var w2=D.reg&&D.reg.wd;if(w2&&w2.reg&&w2.reg2){TS.reg=TN.reg=w2.reg;TS.reg2=TN.reg2=w2.reg2;TS.fri=TN.fri=w2.fri||'금';TS.mkp=TN.mkp=w2.mkp||'토'}}catch(e){}
+  try{var w2=D.reg&&D.reg.wd;if(w2&&w2.reg&&w2.reg2){TS.reg=TN.reg=w2.reg;TS.reg2=TN.reg2=w2.reg2;TS.fri=TN.fri=w2.fri||'금';TS.mkp=TN.mkp=w2.mkp||'토'}else{TS.reg=TN.reg='월';TS.reg2=TN.reg2='수';TS.fri=TN.fri='금';TS.mkp=TN.mkp='토'}}catch(e){}
   var have=TABS.filter(function(k){return info(k).m.length>0&&(k!=='mkp'||(D.mkp&&D.mkp.on===true))});
   if(!have.length){$('tabs').innerHTML='';$('cards').innerHTML='<div class="card"><div class="sub">지정된 학습이 없습니다</div></div>'+refBox();return}
   if(!CUR||have.indexOf(CUR)<0){CUR=savedTab(have);if(!CUR){var w=new Date().getDay(),dd=w===5?'fri':(w===6?'mkp':((w===3||w===4||info('reg').full)&&have.indexOf('reg2')>-1?'reg2':'reg'));CUR=have.indexOf(dd)>-1?dd:have[0]}}
