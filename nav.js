@@ -29,8 +29,8 @@
     }).catch(function(){fb=null;if(n<2)return new Promise(function(r){setTimeout(r,2500)}).then(function(){return write(n+1)})});
   }
   function mark(){if(sent||!at)return Promise.resolve();sent=true;return write(0)}
-  var PK=/^(gi-l1-2021-v2|link2-sb-v1|link2-wb-v1|vsig-k-v1|vsig-k-wq-v1|vsig-e-v1|vsig-e-wq-v2|xray-v1)$/,lastP='';
-  function snap(){var o={},L=localStorage;try{Object.keys(L).forEach(function(k){if(PK.test(k)||k.indexOf('vs_recs_')===0)o[k]=L.getItem(k)})}catch(e){}return JSON.stringify(o)}
+  var PK=/^(gi-l1-2021-v2|link2-sb-v1|link2-wb-v1|vsig-k-v1|vsig-k-wq-v1|vsig-e-v1|vsig-e-wq-v2|xray-v1|dv_[BMH]|vsig-y-wl-v1|wama2000_app_v1|vs_oral_(?:[hs]_)?v1(?:_log)?|fbi_last|fbi_g2_last)$/,PP=/^(vs_recs_|vs_unl_|vs_cover_)/,lastP='';
+  function snap(){var o={},L=localStorage;try{Object.keys(L).forEach(function(k){if(PK.test(k)||PP.test(k)){var q=L.getItem(k);if(q!=null&&q.length<120000)o[k]=q}})}catch(e){}return JSON.stringify(o)}
   /* 이어풀기 저장: 활동에서 나갈 때, 화면이 가려질 때, 5분마다(바뀐 경우만) 학생 계정(vprog/<학생ID>)에 올린다. 불러오기는 학생 홈이 활동을 열기 직전에 한다. */
   function push(){
     if(!at)return Promise.resolve();
