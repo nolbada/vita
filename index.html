@@ -70,7 +70,7 @@ input:focus{outline:2px solid var(--main);border-color:transparent}
 .hws .X{background:#c2562f;border-color:#c2562f;color:#fff;cursor:default}
 .hws .N,.hws .A,.hws .R{background:#9aa3b0;border-color:#9aa3b0;color:#fff;font-size:12px;cursor:default}
 .hws .S{background:#e3eaf6;border-color:#e3eaf6;color:#9fb0cf}
-.hwm{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}.hwm div{width:30px;height:30px;box-sizing:border-box;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#fff;border:1.5px solid #1e3a6e;color:#1e3a6e}.hwm .d{background:#e4e9f2;border-color:#e4e9f2;color:#a9b4c6;font-weight:400}
+.hwm{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}.hwm div{cursor:pointer;width:30px;height:30px;box-sizing:border-box;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#fff;border:1.5px solid #1e3a6e;color:#1e3a6e}.hwm .d{background:#e4e9f2;border-color:#e4e9f2;color:#a9b4c6;font-weight:400}
 .hwk .hws div{cursor:default;border-style:dashed}.hwk .hws .O,.hwk .hws .T,.hwk .hws .X,.hwk .hws .N,.hwk .hws .A,.hwk .hws .R{border-style:solid}
 </style>
 </head>
@@ -204,10 +204,10 @@ function hwBox(){
 function hwMemoBox(){
   if(!HW)return '';
   var rows=HW.items.map(function(it){
-    var n=it.n||0,ms=HW.w[it.k]||[],cells='';
+    var n=it.n||0,cl=HWC[it.k]||[],cells='';
     for(var s=0;s<n;s++){
-      var m=ms[s]||'',dn=(m==='O'||m==='A'||m==='R');
-      cells+='<div'+(dn?' class="d"':'')+'>'+esc((it.labels&&it.labels[s])||'')+'</div>';
+      var dn=(cl[s]===true);
+      cells+='<div'+(dn?' class="d"':'')+' data-hk="'+esc(it.k)+'" data-hs="'+s+'" data-hm="0">'+esc((it.labels&&it.labels[s])||'')+'</div>';
     }
     return '<div class="hwi"><b>'+esc(it.label)+'</b><small>'+esc(it.sub||'')+'</small><div class="hwm">'+cells+'</div></div>';
   }).join('');
@@ -229,12 +229,12 @@ $('hwbox').onclick=async function(e){
   var k=c.getAttribute('data-hk'),s=+c.getAttribute('data-hs');
   var prev=(HWC[k]||[]).slice(),arr=prev.slice();
   while(arr.length<=s)arr.push(false);
-  arr[s]=!arr[s];HWC[k]=arr;$('hwbox').innerHTML=hwBox();
+  arr[s]=!arr[s];HWC[k]=arr;$('hwbox').innerHTML=isT()?hwMemoBox():hwBox();
   try{
     var u={};u['hc.'+WK+'.'+k]=arr;
     await updateDoc(doc(db,'vday',uid,'days','reg'),u);
     var r=D.reg=D.reg||{};r.hc=r.hc||{};r.hc[WK]=r.hc[WK]||{};r.hc[WK][k]=arr;
-  }catch(er){HWC[k]=prev;$('hwbox').innerHTML=hwBox()}
+  }catch(er){HWC[k]=prev;$('hwbox').innerHTML=isT()?hwMemoBox():hwBox()}
 };
 $('go1').onclick=async function(){
   var n=$('nm').value.replace(/\s/g,''),p=$('pw').value;
