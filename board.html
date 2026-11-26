@@ -161,6 +161,10 @@ body[data-m=cls]{--a:#E8590C;--soft:#FFF1E6;--bg:#FFF8F1;--ln:#F3DFCF}nav .cls.o
 .cerr{color:#D32F2F;font-size:13px;margin-top:8px;min-height:16px}
 .clg{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:12px;color:var(--sub)}.clg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .pn{margin:2px 3px;padding:3px 8px;border-radius:7px;font-size:12px;font-weight:800;line-height:1.35;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;position:relative;z-index:2;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.ef{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.ef input,.ef select{font:inherit;font-size:14px;height:40px;border:1px solid var(--ln);border-radius:10px;padding:0 10px;background:#fff;color:var(--ink);max-width:100%}
+.ef input[type=text]{flex:1 1 100%}
+.pop button.dd{background:#8a94a3}
 .cpl{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink)}.cpl input{height:auto}
 @media(max-width:640px){.ce{font-size:11px;padding:2px 5px}.cd{padding:4px 5px 2px}.pn{font-size:10px;padding:2px 4px}}
 .ox{margin-top:22px}.ox h3{font-size:14px;color:var(--sub);margin:0 2px 8px}
@@ -450,7 +454,8 @@ async function loadCal(){
 function mixc(h,t,a){var n=parseInt(h.slice(1),16),r=n>>16,g=n>>8&255,b=n&255;function f(c){return Math.round(c+(t-c)*a)}return 'rgb('+f(r)+','+f(g)+','+f(b)+')'}
 function sk(t){return String(t||'').replace(/[0-9]+(\s*학년)?$/,'').replace(/\s+/g,'')}
 function bsk(n){return String(n||'').trim().split(/\s+/)[0].split('·').map(sk)}
-function own(b,p){return b.k===p.k&&b.s<=p.s&&(b.e||b.s)>=p.s&&bsk(b.n).indexOf(sk(p.n))>-1}
+function own(b,p){if(p.b)return b.id===p.b&&b.s<=p.s&&(b.e||b.s)>=p.s;return b.k===p.k&&b.s<=p.s&&(b.e||b.s)>=p.s&&bsk(b.n).indexOf(sk(p.n))>-1}
+function bopts(sel){return '<option value="">자동 (이름이 같은 막대)</option>'+CAL.filter(function(x){return !x.p}).sort(function(a,b){return a.s<b.s?-1:a.s>b.s?1:0}).map(function(x){return '<option value="'+esc(x.id)+'"'+(x.id===sel?' selected':'')+'>'+esc(x.n)+' ('+esc(rng(x))+')</option>'}).join('')}
 function hp(e){return CAL.some(function(p){return p.p&&own(e,p)})}
 function renderCal(){
   var el=$('ical');if(!BOOT||!CAL){el.innerHTML='';return}
@@ -479,7 +484,7 @@ function renderCal(){
     h+='</div>';
   }
   h+='<div class="clg">'+Object.keys(CK).map(function(k){return '<span><i style="background:'+CK[k][1]+'"></i>'+CK[k][0]+'</span>'}).join('')+'</div>';
-  h+='<div class="cf"><input type="text" id="cn" placeholder="일정 이름 (예: 청주고 기말)"><select id="ck">'+Object.keys(CK).map(function(k){return '<option value="'+k+'">'+CK[k][0]+'</option>'}).join('')+'</select><input type="date" id="cs"><input type="date" id="cx"><label class="cpl"><input type="checkbox" id="cp">날짜 핀</label><button id="cadd">추가</button></div><div class="cerr" id="cerr">'+esc(CALE)+'</div>';
+  h+='<div class="cf"><input type="text" id="cn" placeholder="일정 이름 (예: 청주고 기말)"><select id="ck">'+Object.keys(CK).map(function(k){return '<option value="'+k+'">'+CK[k][0]+'</option>'}).join('')+'</select><input type="date" id="cs"><input type="date" id="cx"><label class="cpl"><input type="checkbox" id="cp">날짜 핀</label><select id="cb" title="핀을 얹을 막대">'+bopts('')+'</select><button id="cadd">추가</button></div><div class="cerr" id="cerr">'+esc(CALE)+'</div>';
   el.innerHTML=h;
 }
 async function saveCal(fn){
@@ -498,14 +503,19 @@ $('ical').onclick=function(e){
     var n=($('cn').value||'').trim(),k=$('ck').value,s=$('cs').value,x=$('cx').value||s,p=$('cp').checked;if(p)x=s;
     if(!n||!s){CALE='이름과 시작일을 넣어 주세요';$('cerr').textContent=CALE;return}
     if(x<s){CALE='끝나는 날이 시작일보다 앞입니다';$('cerr').textContent=CALE;return}
-    saveCal(function(a){var o={id:Date.now().toString(36),n:n,k:k,s:s,e:x};if(p)o.p=1;a.push(o);return a});return;
+    var bv=$('cb').value;saveCal(function(a){var o={id:Date.now().toString(36),n:n,k:k,s:s,e:x};if(p){o.p=1;if(bv)o.b=bv}a.push(o);return a});return;
   }
   var c=e.target.closest('.ce,.pn');if(!c)return;
   var ev=CAL[+c.getAttribute('data-i')];if(!ev)return;var kk=CK[ev.k]||CK.etc;
-  $('ov').innerHTML='<div class="pop"><h2>'+esc(ev.n)+'</h2><div class="tg">'+esc(kk[0])+'  ·  '+esc(rng(ev))+'</div><button class="dl" data-del="'+esc(ev.id)+'">이 일정 삭제</button></div>';
+  $('ov').innerHTML='<div class="pop"><h2>'+esc(ev.n)+'</h2><div class="tg">'+esc(kk[0])+'  ·  '+esc(rng(ev))+'</div><div class="ef"><input type="text" id="en" value="'+esc(ev.n)+'"><select id="ek">'+Object.keys(CK).map(function(k){return '<option value="'+k+'"'+(k===ev.k?' selected':'')+'>'+CK[k][0]+'</option>'}).join('')+'</select><input type="date" id="es" value="'+esc(ev.s)+'"><input type="date" id="ex" value="'+esc(ev.e||ev.s)+'"><label class="cpl"><input type="checkbox" id="ep"'+(ev.p?' checked':'')+'>날짜 핀</label><select id="eb">'+bopts(ev.b||'')+'</select></div><div class="cerr" id="eerr"></div><button class="dl" data-sv="'+esc(ev.id)+'">저장</button> <button class="dl dd" data-del="'+esc(ev.id)+'">이 일정 삭제</button></div>';
   $('ov').classList.remove('hide');
 };
 $('ov').addEventListener('click',function(e){
+  var sv=e.target.closest('[data-sv]');
+  if(sv){var id2=sv.getAttribute('data-sv'),n2=($('en').value||'').trim(),k2=$('ek').value,s2=$('es').value,x2=$('ex').value||s2,p2=$('ep').checked,b2=$('eb').value;if(p2)x2=s2;
+    if(!n2||!s2){$('eerr').textContent='이름과 시작일을 넣어 주세요';return}
+    if(x2<s2){$('eerr').textContent='끝나는 날이 시작일보다 앞입니다';return}
+    $('ov').classList.add('hide');saveCal(function(a){return a.map(function(x){if(x.id!==id2)return x;var o={id:x.id,n:n2,k:k2,s:s2,e:x2};if(p2){o.p=1;if(b2&&b2!==x.id)o.b=b2}return o})});return}
   var d=e.target.closest('[data-del]');if(!d)return;
   var id=d.getAttribute('data-del');
   if(d.getAttribute('data-ok')!=='1'){d.setAttribute('data-ok','1');d.textContent='한 번 더 누르면 삭제됩니다';return}
