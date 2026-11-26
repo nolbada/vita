@@ -29,7 +29,21 @@
     }).catch(function(){fb=null;if(n<2)return new Promise(function(r){setTimeout(r,2500)}).then(function(){return write(n+1)})});
   }
   function mark(){if(sent||!at)return Promise.resolve();sent=true;return write(0)}
-  function go(){try{(W.top||W).location.href='/vita/'}catch(e){location.href='/vita/'}}
+  var PK=/^(gi-l1-2021-v2|link2-sb-v1|link2-wb-v1|vsig-k-v1|vsig-k-wq-v1|vsig-e-v1|vsig-e-wq-v2|xray-v1)$/,lastP='';
+  function snap(){var o={},L=localStorage;try{Object.keys(L).forEach(function(k){if(PK.test(k)||k.indexOf('vs_recs_')===0)o[k]=L.getItem(k)})}catch(e){}return JSON.stringify(o)}
+  /* 이어풀기 저장: 활동에서 나갈 때, 화면이 가려질 때, 5분마다(바뀐 경우만) 학생 계정(vprog/<학생ID>)에 올린다. 불러오기는 학생 홈이 활동을 열기 직전에 한다. */
+  function push(){
+    if(!at)return Promise.resolve();
+    var s=snap();if(s==='{}'||s===lastP||s.length>240000)return Promise.resolve();
+    return init().then(function(c){
+      var u=c.auth.currentUser;if(!u)return;
+      try{if(localStorage.getItem('vita-own')!==u.uid)return}catch(e){return}
+      var t=Date.now();
+      return c.F.setDoc(c.F.doc(c.db,'vprog',u.uid),{m:s,t:t}).then(function(){lastP=s;try{localStorage.setItem('vita-lt',String(t))}catch(e){}});
+    }).catch(function(){fb=null});
+  }
+  function nav(){try{(W.top||W).location.href='/vita/'}catch(e){location.href='/vita/'}}
+  function go(){Promise.race([push(),new Promise(function(r){setTimeout(r,1800)})]).then(nav,nav)}
   function wired(){try{return !!SS.getItem('vita-mk')}catch(e){return false}}
   function ask(){
     if(D.getElementById('vask'))return;
@@ -72,4 +86,7 @@
   try{new MutationObserver(ren).observe(D.documentElement,{childList:true,subtree:true})}catch(e){}
   ren();
   setTimeout(function(){if(at)init().catch(function(){fb=null})},2500);
+  D.addEventListener('visibilitychange',function(){if(D.visibilityState==='hidden')push()});
+  W.addEventListener('pagehide',function(){push()});
+  setInterval(function(){push()},300000);
 }catch(e){}})();
