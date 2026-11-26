@@ -70,6 +70,8 @@ input:focus{outline:2px solid var(--main);border-color:transparent}
 .hws .X{background:#c2562f;border-color:#c2562f;color:#fff;cursor:default}
 .hws .N,.hws .A,.hws .R{background:#9aa3b0;border-color:#9aa3b0;color:#fff;font-size:12px;cursor:default}
 .hws .S{background:#e3eaf6;border-color:#e3eaf6;color:#9fb0cf}
+.hwm{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}.hwm div{width:30px;height:30px;box-sizing:border-box;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#fff;border:1.5px solid #1e3a6e;color:#1e3a6e}.hwm .d{background:#e4e9f2;border-color:#e4e9f2;color:#a9b4c6;font-weight:400}
+.hwk .hws div{cursor:default;border-style:dashed}.hwk .hws .O,.hwk .hws .T,.hwk .hws .X,.hwk .hws .N,.hwk .hws .A,.hwk .hws .R{border-style:solid}
 </style>
 </head>
 <body>
@@ -111,6 +113,7 @@ input:focus{outline:2px solid var(--main);border-color:transparent}
   <div id="cards"></div>
   <div class="sh">이번 주 스탬프</div>
   <div class="stp" id="stamps"></div>
+  <div id="hwchk"></div>
   <div class="foot" style="display:none">
     <button class="btn" id="out">저장하고 나가기</button>
   </div>
@@ -149,7 +152,7 @@ function info(k){var x=D[dk(k)]||{};var m=x.items||[];var rq=0,dn=0;m.forEach(fu
 function refBox(){var r=(D.ref&&D.ref.items)||[];if(!r.length)return '';return '<div class="dcard"><div class="dh"><b>참고자료</b></div>'+r.map(function(it){var h=it.u?' href="'+esc(it.u)+'" target="_blank" rel="noopener"':'';return '<a class="rf"'+h+'><div><b>'+esc(it.n)+'</b><small>'+esc(it.t||'')+'</small></div><i>&rsaquo;</i></a>'}).join('')+'</div>'}
 function render(){
   var d=new Date();
-  $('hwbox').innerHTML=hwBox();$('dt').textContent=(d.getMonth()+1)+'/'+d.getDate()+'('+DAY[d.getDay()]+')';
+  $('hwbox').innerHTML=isT()?hwMemoBox():hwBox();$('hwchk').innerHTML=isT()?hwChkBox():'';$('dt').textContent=(d.getMonth()+1)+'/'+d.getDate()+'('+DAY[d.getDay()]+')';
   $('hi').textContent=me+'님';
   var have=TABS.filter(function(k){return info(k).m.length>0&&(k!=='mkp'||(D.mkp&&D.mkp.on===true))});
   if(!have.length){$('tabs').innerHTML='';$('cards').innerHTML='<div class="card"><div class="sub">지정된 학습이 없습니다</div></div>'+refBox();return}
@@ -169,6 +172,7 @@ function render(){
 
 
 var HW=null,HWC={},WK='',HWOPEN=false;
+var HWMO=true;function isT(){return /^tch/.test(uid||'')}
 function wkKey(){var d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+1)%7));return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 async function loadHw(){
   HW=null;var tk=D.reg&&D.reg.tk;if(!tk)return;
@@ -197,8 +201,30 @@ function hwBox(){
   }).join('');
   return '<div class="hwb"><div class="hwh" data-hh="1"><span>숙제</span><small>'+dn+' / '+tot+' · '+(HWOPEN?'접기':'펼치기')+'</small></div>'+(HWOPEN?'<div class="hwr">'+rows+'</div>':'')+'</div>';
 }
+function hwMemoBox(){
+  if(!HW)return '';
+  var rows=HW.items.map(function(it){
+    var n=it.n||0,ms=HW.w[it.k]||[],cells='';
+    for(var s=0;s<n;s++){
+      var m=ms[s]||'',dn=(m==='O'||m==='A'||m==='R');
+      cells+='<div'+(dn?' class="d"':'')+'>'+esc((it.labels&&it.labels[s])||'')+'</div>';
+    }
+    return '<div class="hwi"><b>'+esc(it.label)+'</b><small>'+esc(it.sub||'')+'</small><div class="hwm">'+cells+'</div></div>';
+  }).join('');
+  return '<div class="hwb"><div class="hwh" data-hh="1"><span>주간 숙제</span><small>'+(HWMO?'접기':'펼치기')+'</small></div>'+(HWMO?'<div class="hwr">'+rows+'</div>':'')+'</div>';
+}
+function hwChkBox(){
+  if(!HW)return '';
+  var tot=0,dn=0;
+  var rows=HW.items.map(function(it){
+    var n=it.n||0,ms=HW.w[it.k]||[],cells='';
+    for(var s=0;s<n;s++){var m=ms[s]||'';if(m!=='R'&&m!=='A')tot++;if(m==='O')dn++;cells+='<div class="'+m+'">'+esc(HSY[m]||'')+'</div>'}
+    return '<div class="hwi"><b>'+esc(it.label)+'</b><small>'+esc(it.sub||'')+'</small><div class="hws">'+cells+'</div></div>';
+  }).join('');
+  return '<div class="hwb hwk" style="margin-top:14px"><div class="hwh" style="cursor:default"><span>선생님 숙제 확인</span><small>'+dn+' / '+tot+'</small></div><div class="hwr">'+rows+'</div></div>';
+}
 $('hwbox').onclick=async function(e){
-  if(e.target.closest('[data-hh]')){HWOPEN=!HWOPEN;$('hwbox').innerHTML=hwBox();return}
+  if(e.target.closest('[data-hh]')){if(isT()){HWMO=!HWMO;$('hwbox').innerHTML=hwMemoBox()}else{HWOPEN=!HWOPEN;$('hwbox').innerHTML=hwBox()}return}
   var c=e.target.closest('[data-hk]');if(!c||c.getAttribute('data-hm')==='1'||!HW||!uid)return;
   var k=c.getAttribute('data-hk'),s=+c.getAttribute('data-hs');
   var prev=(HWC[k]||[]).slice(),arr=prev.slice();
