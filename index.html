@@ -276,7 +276,7 @@ $('cards').onclick=async function(e){
       u.start=now;u.t=now;
       try{await updateDoc(doc(db,'vday',uid,'days',d0),u);x.start=now;x.t=now}catch(er){}
     }
-    try{sessionStorage.setItem('vita-in','1');sessionStorage.setItem('vita-at',JSON.stringify({k:k,i:i,r:/^rd-/.test(it.c||'')?1:0}));sessionStorage.removeItem('vita-mk')}catch(e){}wnSet();location.href=lk(it.u,k,i);return;
+    try{sessionStorage.setItem('vita-in','1');sessionStorage.setItem('vita-at',JSON.stringify({k:k,i:i,r:/^rd-/.test(it.c||'')?1:0,nm:String(it.n||'').slice(0,30)}));sessionStorage.removeItem('vita-mk')}catch(e){}wnSet();location.href=lk(it.u,k,i);return;
   }
   if(isDone){u['done.'+ix]=deleteField();u.t=now}
   else{u['done.'+ix]=now;u.t=now;if(!x.start)u.start=now}
