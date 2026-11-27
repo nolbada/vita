@@ -159,7 +159,7 @@ var BK=[['리딩튜터 주니어 스타터','tutorstarter',3],['해커스 리딩
 var RD=[];BK.forEach(function(b){for(var k=1;k<=b[2];k++)RD.push({id:'rd-'+b[1]+k,n:'개별 독해책',t:b[0]+' '+k,u:B+'shared/?a='+b[1]+k+'/&new=1',next:k<b[2]?'rd-'+b[1]+(k+1):''})});
 function V(id,n,t,u,nx){var o={id:id,n:n,t:t};if(u)o.u=B+u;if(nx)o.next=nx;return o}
 var C={cat:[
-{g:'비단챌 제출',items:[V('bd-gibon','비단챌 제출','기본','bidanchael/gibon/','bd-baljeon'),V('bd-baljeon','비단챌 제출','발전','bidanchael/baljeon/','bd-simhwa'),V('bd-simhwa','비단챌 제출','심화','bidanchael/simhwa/','bd-gogyo'),V('bd-gogyo','비단챌 제출','고교','bidanchael/gogyo/','vb-5')]},
+{g:'비단챌 제출',items:[V('bd-gibon','비단챌 제출','기본','','bd-baljeon'),V('bd-baljeon','비단챌 제출','발전','','bd-simhwa'),V('bd-simhwa','비단챌 제출','심화','','bd-gogyo'),V('bd-gogyo','비단챌 제출','고교','','vb-5')]},
 {g:'비단챌 문장성분',items:[V('bs-gibon','비단챌 문장성분','기본','bidanchael/bs/gibon/'),V('bs-baljeon','비단챌 문장성분','발전','bidanchael/bs/baljeon/'),V('bs-simhwa','비단챌 문장성분','심화','bidanchael/bs/simhwa/'),V('bs-gogyo','비단챌 문장성분','고교','bidanchael/bs/gogyo/')]},
 {g:'비단챌 3카드 & 10문제',items:[V('bd-3gibon','비단챌 3카드 & 10문제 풀기','기본','bidanchael/gibon/'),V('bd-3baljeon','비단챌 3카드 & 10문제 풀기','발전','bidanchael/baljeon/'),V('bd-3simhwa','비단챌 3카드 & 10문제 풀기','심화','bidanchael/simhwa/'),V('bd-3gogyo','비단챌 3카드 & 10문제 풀기','고교','bidanchael/gogyo/')]},
 {g:'비단챌 제출(링크 없음)',items:[V('bq-gibon','비단챌 제출','기본'),V('bq-baljeon','비단챌 제출','발전'),V('bq-simhwa','비단챌 제출','심화'),V('bq-gogyo','비단챌 제출','고교')]},
