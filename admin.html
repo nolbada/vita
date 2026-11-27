@@ -74,7 +74,7 @@ async function boot(){
   var s=await getDoc(doc(db,'hw_c','master'));
   var d=JSON.parse(s.data().j);
   ROWS=[{id:'tch1',name:'이성주',cls:'선생님',grade:''},{id:'tch2',name:'신유정',cls:'선생님',grade:''}]
-    .concat(d.s.filter(function(o){return o.status==='on'&&(o.grade==='초6'||o.grade==='중1')}).sort(function(a,b){return a.name.localeCompare(b.name,'ko')}).map(function(o){return {id:o.id,name:o.name,cls:o.cls,grade:o.grade}}));
+    .concat(d.s.filter(function(o){return o.status==='on'&&(o.grade==='초5'||o.grade==='초6'||o.grade==='중1')}).sort(function(a,b){return a.name.localeCompare(b.name,'ko')}).map(function(o){return {id:o.id,name:o.name,cls:o.cls,grade:o.grade}}));
   $('lg').classList.add('hide');$('main').classList.remove('hide');draw();
 }
 $('gl').onclick=async function(){
