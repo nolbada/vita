@@ -393,7 +393,7 @@ function scBd(A,s){
   var X=DATA[s.id],o2=offOf(),w0=wkStart(),hsd=false,tg=20,bn=0,bw=0,seen={};its.forEach(function(it,i){var c=String(it&&it.c||'');if(c.indexOf('bd-')===0)hb=true;if(c.indexOf('bs-')===0){hs=true;var tt=X&&X.done&&X.done[i+o2];if(tt&&tt>=w0)hsd=true}});
   if(o){if(Array.isArray(o.l))L=o.l;else if(o.w)L=[{w:o.w}]}
   L.forEach(function(e){var w=String(e&&e.w||'');if(/문장성분/.test(w)){bc=w;var q=w.match(/#(\d+)-(\d+).*오답\s*(\d+)개/),kk=q?q[1]+'-'+q[2]:w;if(!seen[kk]){seen[kk]=1;if(q){bn+=(+q[2])-(+q[1])+1;bw+=+q[3]}}}else if(/10문제/.test(w))sc=w});
-  if(sc)out.push({t:sc.replace(/\s*완료\s*·\s*\d+문제\s*/,' '),s:''});else if(hb||o)out.push({t:'비단챌 미완료',s:'z'});
+  if(sc){var mm=sc.match(/(\d+)\s*\/\s*10/);out.push({t:'비단챌 '+(mm?mm[1]+'/10':sc),s:''})}else if(hb||o)out.push({t:'비단챌 미완료',s:'z'});
   if(bc){out.push({t:bn?'성분 '+Math.min(bn,tg)+'/'+tg+' 오답'+bw:'성분 완료',s:''})}else if(hsd)out.push({t:'성분 완료',s:''});else if(hs)out.push({t:'성분 0/'+tg,s:'z'});
   return out;
 }
@@ -682,7 +682,7 @@ onAuthStateChanged(auth,async function(u){
   if(!u||BOOT)return;
   try{await boot()}catch(e){$('le').textContent='선생님 계정이 아니거나 명부를 읽지 못했습니다'}
 });
-var BV='20261127f';try{var vs=document.createElement('div');vs.textContent='v'+BV.slice(-1);vs.style.cssText='position:fixed;right:6px;bottom:2px;font-size:11px;color:#7a8696;z-index:5;pointer-events:none';document.body.appendChild(vs);setInterval(function(){try{vs.textContent='v'+BV.slice(-1)+' '+M+' D'+Object.keys(DATA).length+' B'+Object.keys(BDT).length+' H'+Object.keys(HWR).length+(ATTERR?' !':'')}catch(e){}},2000)}catch(e){}
+var BV='20261127g';try{var vs=document.createElement('div');vs.textContent='v'+BV.slice(-1);vs.style.cssText='position:fixed;right:6px;bottom:2px;font-size:11px;color:#7a8696;z-index:5;pointer-events:none';document.body.appendChild(vs);setInterval(function(){try{vs.textContent='v'+BV.slice(-1)+' '+M+' D'+Object.keys(DATA).length+' B'+Object.keys(BDT).length+' H'+Object.keys(HWR).length+(ATTERR?' !':'')}catch(e){}},2000)}catch(e){}
 (function(){function chk(){fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(x){var m=/var BV='([^']+)'/.exec(x);if(m&&m[1]!==BV){var o=document.getElementById('ov');if(!o||o.classList.contains('hide'))location.reload()}}).catch(function(){})}
 setInterval(chk,300000)})();
 </script>
