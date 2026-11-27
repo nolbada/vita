@@ -374,14 +374,14 @@ function openMy(){
   $('myc').onclick=function(){document.querySelectorAll('#myl input').forEach(function(x){x.checked=false})};
   $('mys').onclick=function(){MY=[].slice.call(document.querySelectorAll('#myl input:checked')).map(function(x){return x.value});try{localStorage.setItem('vitaMy',JSON.stringify(MY))}catch(e){}$('ov').classList.add('hide');watch()};
 }
-var SCL={ve:'V시그널 E',vk:'V시그널 K',vy:'V시그널 Y',xr:'엑스레이',m1:'M1',m2:'M2',vl:'보카링크',dv:'데일리보카',gk1:'대화문',gk2:'대화문'};
+var SCN={ve:'V시그널 E',vk:'V시그널 K',vy:'V시그널 Y',xr:'엑스레이',m1:'M1',m2:'M2',vl:'보카링크',dv:'데일리보카',gk1:'대화문',gk2:'대화문'};
 function scTok(A,k){
   var o=bdRec(A,'a_'+k);if(!o)return null;
   var done=+o.n>0,wt=String(o.w||''),m,st=done?'':'z',t;
   if(k==='dv'){m=wt.match(/(\d+\/\d+)/);t='Daily'+(o.d?'V'+o.d:'')+' '+(done?(m?m[1]:'완료'):'미완료')}
-  else if(k==='m1'||k==='m2'){t=SCL[k]+(o.d?'R'+o.d:'')+' '+(done?(o.p!=null?o.p+'%':'완료'):'미완료');if(done&&o.ok!=null&&!o.ok)st='w'}
+  else if(k==='m1'||k==='m2'){t=SCN[k]+(o.d?'R'+o.d:'')+' '+(done?(o.p!=null?o.p+'%':'완료'):'미완료');if(done&&o.ok!=null&&!o.ok)st='w'}
   else{
-    t=SCL[k]+(o.d?' '+(k==='xr'?'분석':'D')+o.d:'');
+    t=SCN[k]+(o.d?' '+(k==='xr'?'분석':'D')+o.d:'');
     if(!done)t+=' 미완료';else if(o.p!=null){t+=' '+o.p+'%';if(o.ok!=null&&!o.ok&&/^(vk|ve|vy)$/.test(k))st='w'}else t+=' 완료';
   }
   return {t:t,s:st};
