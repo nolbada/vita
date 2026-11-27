@@ -221,7 +221,7 @@ function RD(){var d=new Date();d.setDate(d.getDate()-OFF);return d}function dayE
 function hwOf(id){var raw=HWR[id];if(!raw)return null;var o=raw;try{if(typeof raw==='string')o=JSON.parse(raw)}catch(e){return null}var c={O:0,T:0,X:0,all:0};Object.keys(o).forEach(function(k){if(!Array.isArray(o[k]))return;o[k].forEach(function(m){if(m==='O')c.O++;else if(m==='T')c.T++;else if(m==='X')c.X++;if(m==='O'||m==='T'||m==='X')c.all++})});return c}
 function wkStart(){var d=RD();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime()}
 function dayStart(){var d=RD();d.setHours(0,0,0,0);return d.getTime()}
-function isOpt(it){return it.r==='plus'||it.r==='ref'||/^dl-/.test(it.c||'')||/대화문/.test(it.n||'')||/^비단챌 문장성분/.test(it.n||'')}
+function isOpt(it,k){return it.r==='plus'||it.r==='ref'||(k!=='fri'&&(/^dl-/.test(it.c||'')||/대화문/.test(it.n||'')||/^비단챌 문장성분/.test(it.n||'')))}
 function hm(t){var d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function stayHtml(r){var at=r&&r.arrive;if(!at)return '';var m=Math.max(0,Math.floor((Date.now()-at)/60000));return '<span'+(m>=60?' class="stlate"':'')+'>입실 '+hm(at)+' · '+m+'분</span>'}
 function isAtt(){return M==='fri'||M==='mkp'}
@@ -290,7 +290,7 @@ function info(id){
   var x=DATA[id];if(!x)return null;var st0=ST.filter(function(q){return q.id===id})[0];
   var items=x.items||[],o=offOf(),ws=wkStart(),rows=[],rq=0,dn=0;
   items.forEach(function(it,i){
-    var t=x.done&&x.done[i+o],d=!!t&&t>=ws&&(!OFF||t<=dayEnd()),op=isOpt(it),au=st0?autoOf(st0,it.c||''):null;if(au&&!d){d=true;t=au.ts||dayStart()}
+    var t=x.done&&x.done[i+o],d=!!t&&t>=ws&&(!OFF||t<=dayEnd()),op=isOpt(it,dkey()),au=st0?autoOf(st0,it.c||''):null;if(au&&!d){d=true;t=au.ts||dayStart()}
     rows.push({n:it.n,c:it.c||'',t:it.t||'',d:d,o:op,at:d?t:0,ex:au?au.lines:null});
     if(!op){rq++;if(d)dn++}
   });
