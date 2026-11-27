@@ -56,7 +56,7 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 22px 18
 .hw{font-size:13px;font-weight:700;color:var(--sub);margin-top:3px}
 .st.hx{border-color:#d97706;background:#fff7ec}
 .hw.x{color:#b45309}
-.st.em{background:#f6f7fa;border-style:dashed;cursor:default}.stay{font-size:13px;font-weight:600;color:var(--sub);margin-top:3px}.stay .ov{color:#d93025}
+.st.em{background:#f6f7fa;border-style:dashed;cursor:default}.stay{font-size:13px;font-weight:600;color:var(--sub);margin-top:3px}.stay .stlate{color:#d93025}
 .ft{display:flex;justify-content:space-between;font-size:13px;color:var(--sub)}
 .ft b{color:var(--ink);font-size:15px}
 .empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:16px}
@@ -223,7 +223,7 @@ function wkStart(){var d=RD();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getD
 function dayStart(){var d=RD();d.setHours(0,0,0,0);return d.getTime()}
 function isOpt(it){return /^dl-/.test(it.c||'')||/대화문/.test(it.n||'')||/^비단챌 문장성분/.test(it.n||'')}
 function hm(t){var d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
-function stayHtml(r){var at=r&&r.arrive;if(!at)return '';var m=Math.max(0,Math.floor((Date.now()-at)/60000));return '<span'+(m>=60?' class="ov"':'')+'>입실 '+hm(at)+' · '+m+'분</span>'}
+function stayHtml(r){var at=r&&r.arrive;if(!at)return '';var m=Math.max(0,Math.floor((Date.now()-at)/60000));return '<span'+(m>=60?' class="stlate"':'')+'>입실 '+hm(at)+' · '+m+'분</span>'}
 function isAtt(){return M==='fri'||M==='mkp'}
 function defMode(){var w=RD().getDay();return (w===5||w===6)?'fri':((w===3||w===4)?'reg2':'reg')}
 function groups(){var w=RD().getDay();if(w===1||w===3)return ['월수'];if(w===2||w===4)return ['화목'];return ['월수','화목']}
