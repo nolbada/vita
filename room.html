@@ -730,7 +730,7 @@ async function boot(){
   var s=await getDoc(doc(db,'hw_c','master'));
   var d=JSON.parse(s.data().j);
   ST=[{id:'tch1',name:'이성주',cls:'체험 계정'},{id:'tch2',name:'신유정',cls:'체험 계정'}]
-    .concat(d.s.filter(function(o){return o.status==='on'&&(o.grade==='초6'||o.grade==='중1'||(o.grade==='초5'&&/초6/.test(o.cls||'')))}).sort(function(a,b){return a.name.localeCompare(b.name,'ko')}).map(function(o){return {id:o.id,name:o.name,cls:o.cls}}));
+    .concat(d.s.filter(function(o){return o.status==='on'&&(o.grade==='초6'||o.grade==='중1'||(o.grade==='초5'&&/초6/.test(o.cls||'')))}).sort(function(a,b){var R=function(c){c=c||'';return /초6/.test(c)?0:/중1/.test(c)?1:/중2/.test(c)?2:/중3/.test(c)?3:9};return R(a.cls)-R(b.cls)||String(a.cls).localeCompare(String(b.cls),'ko')||a.name.localeCompare(b.name,'ko')}).map(function(o){return {id:o.id,name:o.name,cls:o.cls}}));
   await loadCfg();
   $('lg').classList.add('hide');$('app').classList.remove('hide');
   all();scanAll();
