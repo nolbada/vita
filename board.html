@@ -376,11 +376,11 @@ function openMy(){
   $('myc').onclick=function(){document.querySelectorAll('#myl input').forEach(function(x){x.checked=false})};
   $('mys').onclick=function(){MY=[].slice.call(document.querySelectorAll('#myl input:checked')).map(function(x){return x.value});try{localStorage.setItem('vitaMy',JSON.stringify(MY))}catch(e){}$('ov').classList.add('hide');watch()};
 }
-var SCN={ve:'V시그널 E',vk:'V시그널 K',vy:'V시그널 Y',xr:'엑스레이',m1:'M1',m2:'M2',vl:'보카링크',dv:'데일리보카',gk1:'대화문',gk2:'대화문'};
+var SCN={bd:'비단챌',ve:'V시그널 E',vk:'V시그널 K',vy:'V시그널 Y',xr:'엑스레이',m1:'M1',m2:'M2',vl:'보카링크',dv:'데일리보카',gk1:'대화문',gk2:'대화문'};
 function scTok(A,k){
   var o=bdRec(A,'a_'+k);if(!o)return null;
   var done=+o.n>0,wt=String(o.w||''),m,st=done?'':'z',t;
-  if(k==='dv'){m=wt.match(/(\d+\/\d+)/);t='Daily'+(o.d?'V'+o.d:'')+' '+(done?(m?m[1]:'완료'):'미완료')}
+  if(k==='bd'){t=done&&wt?wt.replace(/\s*완료\s*·\s*(\d+)문제\s*/,' '):'비단챌 '+(done?'완료':'진행 중')}else if(k==='dv'){m=wt.match(/(\d+\/\d+)/);t='Daily'+(o.d?'V'+o.d:'')+' '+(done?(m?m[1]:'완료'):'미완료')}
   else if(k==='m1'||k==='m2'){t=SCN[k]+(o.d?'R'+o.d:'')+' '+(done?(o.p!=null?o.p+'%':'완료'):'미완료');if(done&&o.ok!=null&&!o.ok)st='w'}
   else{
     t=SCN[k]+(o.d?' '+(k==='xr'?'분석':'D')+o.d:'');
@@ -405,7 +405,7 @@ function scLine(s){
   if(M!==defMode())return '';
   var A=BDT[s.id];if(!A)return '';
   var out=[],t;
-  ['vk','ve','vy','xr'].forEach(function(k){if(t=scTok(A,k))out.push(t)});
+  ['bd','vk','ve','vy','xr'].forEach(function(k){if(t=scTok(A,k))out.push(t)});
   if(t=scRd(A))out.push(t);
   ['m1','m2','vl','dv','gk1','gk2'].forEach(function(k){if(t=scTok(A,k))out.push(t)});
   return out.length?'<div class="sc">'+out.map(function(x){return '<span'+(x.s?' class="'+x.s+'"':'')+'>'+esc(x.t)+'</span>'}).join('')+'</div>':'';
