@@ -681,7 +681,7 @@ onAuthStateChanged(auth,async function(u){
   if(!u||BOOT)return;
   try{await boot()}catch(e){$('le').textContent='선생님 계정이 아니거나 명부를 읽지 못했습니다'}
 });
-var BV='20261127a';
+var BV='20261127b';try{var vs=document.createElement('div');vs.textContent='v'+BV.slice(-1);vs.style.cssText='position:fixed;right:6px;bottom:2px;font-size:10px;color:#9aa5b1;z-index:5;pointer-events:none';document.body.appendChild(vs)}catch(e){}
 (function(){function chk(){fetch(location.pathname+'?v='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(x){var m=/var BV='([^']+)'/.exec(x);if(m&&m[1]!==BV){var o=document.getElementById('ov');if(!o||o.classList.contains('hide'))location.reload()}}).catch(function(){})}
 setInterval(chk,300000)})();
 </script>
