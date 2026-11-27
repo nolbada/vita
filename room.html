@@ -104,6 +104,7 @@ textarea{width:100%;height:66px;resize:none;border:1.5px solid #cbd2de;border-ra
 .rk.v1{background:#fff4dc;border-color:#e6c47a;color:#7a4b00}.rk.v2{background:#e9eef9;border-color:#b9c7e6;color:#2b4a8a}.rk.v3{background:#fbe6ee;border-color:#e4a9c0;color:#a0305a}
 .lv{width:30px;height:34px;border-radius:9px;background:var(--chip);font-size:16px;font-weight:700;color:#4a5468;flex:none}.lv:disabled{opacity:.3}
 .ei{height:36px;border:1.5px solid #cbd2de;border-radius:9px;padding:0 8px;background:#fff;font-size:15px;min-width:90px}
+.ah{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:0 2px}.ah b{font-size:15px;color:var(--sub)}.adf{display:flex;flex-direction:column;gap:8px;background:var(--bg);border-radius:12px;padding:10px}
 .cpr{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.cpr select{height:40px;border:1.5px solid #cbd2de;border-radius:10px;padding:0 8px;background:#fff;font-size:14px;max-width:180px}
 </style>
 </head>
@@ -133,8 +134,8 @@ textarea{width:100%;height:66px;resize:none;border:1.5px solid #cbd2de;border-ra
 <b style="font-size:16px">자료</b>
 <div class="seg" style="padding:3px"><button id="t1" class="on" style="height:34px;padding:0 14px;font-size:14px">이 학생만</button><button id="t2" style="height:34px;padding:0 14px;font-size:14px">같은 반 전체</button></div>
 <div class="chips" id="cc"></div>
-<button class="g" id="cuo" style="align-self:flex-start">자료 추가 (링크)</button>
-<div id="cuf" class="hide" style="display:flex;flex-direction:column;gap:8px"><input class="ei" id="cug" list="cugl" placeholder="구분 (예: 문법, 단어책, 새 이름)" style="width:100%"><datalist id="cugl"></datalist><input class="ei" id="cun" placeholder="자료 이름" style="width:100%"><input class="ei" id="cuu" placeholder="링크 (https://...)" style="width:100%"><div style="display:flex;gap:8px;align-items:center"><button class="g" id="cus" style="background:var(--main);color:#fff">추가하기</button><span id="cum" style="font-size:13px;color:var(--sub)"></span></div></div>
+<button class="g hide" id="cuo" style="align-self:flex-start">자료 추가 (링크)</button>
+<div id="cuf" class="hide" style="display:none;flex-direction:column;gap:8px"><input class="ei" id="cug" list="cugl" placeholder="구분 (예: 문법, 단어책, 새 이름)" style="width:100%"><datalist id="cugl"></datalist><input class="ei" id="cun" placeholder="자료 이름" style="width:100%"><input class="ei" id="cuu" placeholder="링크 (https://...)" style="width:100%"><div style="display:flex;gap:8px;align-items:center"><button class="g" id="cus" style="background:var(--main);color:#fff">추가하기</button><span id="cum" style="font-size:13px;color:var(--sub)"></span></div></div>
 </div>
 <div id="pn" style="padding:0 14px 14px;display:flex;flex-direction:column;gap:8px"></div>
 </div>
@@ -267,23 +268,38 @@ function drawList(){
   });
   $('ls').innerHTML=h+rb(D,TAB);
 }
+var AREAS=[['지정',['비단챌 제출','비단챌 문장성분','단어시험','비단챌 말하기 시험','V시그널','개별 독해책','클카 독해TEST','M1 리딩','클카 오늘의 단어']],['문법',['문법','데일리어법','G-기출','그래머콕']],['단어',['단어책','데일리보카']],['구문·독해',[]],['플러스',['대화문']],['페널티',[]]];
+var CUA={},ADD='';
+C.chips=[['전체',null]].concat(AREAS.map(function(a){return [a[0],[a[0]]]}));
+function areaOf(gn){if(CUA[gn])return CUA[gn];for(var i=0;i<AREAS.length;i++)if(AREAS[i][1].indexOf(gn)>-1)return AREAS[i][0];return '지정'}
+function defRole(v){var a=areaOf(v.n);return a==='플러스'?'plus':a==='페널티'?'pen':''}
+function grpHtml(g,cs){
+  var h='';
+  if(g.items.length>1){
+    var hv=cs.filter(function(x){return x.g===g.g})[0],hc=hv?hv.c:'';
+    if(g.items.length>6)return '<div class="pi pl"><div><b>'+esc(g.g)+'</b>'+(hv&&hv.t?'<small>'+esc(hv.t)+'</small>':'')+'</div><select class="ps" data-g="'+esc(g.g)+'"'+(cur()?'':' disabled')+'><option value="">'+(hv?'다른 책 고르기':'고르기')+'</option>'+g.items.map(function(v){return '<option value="'+v.id+'"'+(v.id===hc?' selected':'')+'>'+esc(v.t)+'</option>'}).join('')+'</select></div>';
+    return '<div class="pi pl"><div><b>'+esc(g.g)+'</b></div><div class="lvb">'+g.items.map(function(v){return '<button class="lb'+(v.id===hc?' on':'')+'" data-id="'+v.id+'"'+(cur()?'':' disabled')+'>'+esc(v.t)+'</button>'}).join('')+'</div></div>';
+  }
+  g.items.forEach(function(v){
+    var has=cs.some(function(x){return x.c===v.id});
+    h+='<div class="pi"><div><b>'+esc(v.n)+'</b><small>'+esc(v.t)+'</small></div>'+(/^cu-/.test(v.id)?'<button class="ib x cud" data-id="'+v.id+'" aria-label="자료 삭제" style="width:34px;height:42px"><svg width="14" height="14" viewBox="0 0 18 18"><path d="M5 5l8 8M13 5l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>':'')+'<button class="add'+(has?' dn':'')+'" data-id="'+v.id+'"'+(cur()?'':' disabled')+'>'+(has?'담김':'담기')+'</button></div>';
+  });
+  return h;
+}
 function drawPantry(){
-  $('cc').innerHTML=C.chips.map(function(c){return '<button data-c="'+esc(c[0])+'" class="'+(CHIP===c[0]?'on':'')+'">'+esc(c[0])+'</button>'}).join('');
-  var h='',n=0;
-  C.cat.forEach(function(g){
-    if((TAB==='ref')!==(g.g==='문법'))return;
-    var ch=C.chips.filter(function(c){return c[0]===CHIP})[0];
-    if(CHIP!=='전체'&&!(ch&&ch[1]&&ch[1].indexOf(g.g)>-1))return;
-    var cs=cur()&&DATA[cur().id]&&DATA[cur().id][TAB]?DATA[cur().id][TAB].items:[];
-    if(g.items.length>1){
-      var hv=cs.filter(function(x){return x.g===g.g})[0],hc=hv?hv.c:'';
-      if(g.items.length>6){h+='<div class="pi pl"><div><b>'+esc(g.g)+'</b>'+(hv&&hv.t?'<small>'+esc(hv.t)+'</small>':'')+'</div><select class="ps" data-g="'+esc(g.g)+'"'+(cur()?'':' disabled')+'><option value="">'+(hv?'다른 책 고르기':'고르기')+'</option>'+g.items.map(function(v){return '<option value="'+v.id+'"'+(v.id===hc?' selected':'')+'>'+esc(v.t)+'</option>'}).join('')+'</select></div>';return}
-      h+='<div class="pi pl"><div><b>'+esc(g.g)+'</b></div><div class="lvb">'+g.items.map(function(v){return '<button class="lb'+(v.id===hc?' on':'')+'" data-id="'+v.id+'"'+(cur()?'':' disabled')+'>'+esc(v.t)+'</button>'}).join('')+'</div></div>';return}
-    g.items.forEach(function(v){
-      n++;
-      var has=cs.some(function(x){return x.c===v.id});
-      h+='<div class="pi"><div><b>'+esc(v.n)+'</b><small>'+esc(v.t)+'</small></div>'+(/^cu-/.test(v.id)?'<button class="ib x cud" data-id="'+v.id+'" aria-label="자료 삭제" style="width:34px;height:42px"><svg width="14" height="14" viewBox="0 0 18 18"><path d="M5 5l8 8M13 5l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>':'')+'<button class="add'+(has?' dn':'')+'" data-id="'+v.id+'"'+(cur()?'':' disabled')+'>'+(has?'담김':'담기')+'</button></div>';
-    });
+  var isRef=TAB==='ref';if(CHIP!=='전체'&&(CHIP==='문법')!==isRef)CHIP='전체';
+  $('cc').innerHTML=C.chips.filter(function(c){return c[0]==='전체'||(c[0]==='문법')===isRef}).map(function(c){return '<button data-c="'+esc(c[0])+'" class="'+(CHIP===c[0]?'on':'')+'">'+esc(c[0])+'</button>'}).join('');
+  var h='';
+  var cs=cur()&&DATA[cur().id]&&DATA[cur().id][TAB]?DATA[cur().id][TAB].items:[];
+  AREAS.forEach(function(ar){
+    var an=ar[0];
+    if((TAB==='ref')!==(an==='문법'))return;
+    if(CHIP!=='전체'&&CHIP!==an)return;
+    h+='<div class="ah"><b>'+esc(an)+'</b><button class="g" data-ad="'+esc(an)+'">'+(ADD===an?'닫기':'+ 자료 추가')+'</button></div>';
+    if(ADD===an)h+='<div class="adf"><input class="ei" id="adn" placeholder="자료 이름" style="width:100%"><input class="ei" id="adu" placeholder="링크 (https://...)" style="width:100%"><div style="display:flex;gap:8px;align-items:center"><button class="g" id="ads" data-an="'+esc(an)+'" style="background:var(--main);color:#fff">추가하기</button><span id="adm" style="font-size:13px;color:var(--sub)"></span></div></div>';
+    var gs=C.cat.filter(function(g){return areaOf(g.g)===an});
+    if(!gs.length)h+='<div class="em" style="padding:6px 4px">비어 있음</div>';
+    gs.forEach(function(g){h+=grpHtml(g,cs)});
   });
   $('pn').innerHTML=h||'<div class="em">비어 있음</div>';
 }
@@ -348,7 +364,7 @@ async function forTargets(fn){
   for(var i=0;i<ts.length;i++){var D=await load(ts[i].id);fn(D[TAB],ts[i],D);D.dirty[TAB]=true}
   MSG='';BASECONF=false;drawAll();
 }
-function mkItem(v,r){return {n:v.n,t:v.t||'',u:v.u||'',c:v.id,g:GRP[v.n]?v.n:'',r:r||'',o:-1}}
+function mkItem(v,r){return {n:v.n,t:v.t||'',u:v.u||'',c:v.id,g:GRP[v.n]?v.n:'',r:(r===undefined?defRole(v):r),o:-1}}
 $('sl').onclick=async function(e){
   var c=e.target.closest('.chead');
   if(c){var cn=c.getAttribute('data-c'),m=ST.filter(function(s){return s.cls===cn});var keep=m.filter(function(s){return s.id===SEL})[0]||m[0];SEL=keep.id;TARGET='cls';pan('mid');$('t1').classList.remove('on');$('t2').classList.add('on');BASECONF=false;await load(SEL);drawAll();return}
@@ -366,6 +382,7 @@ function catRef(){return doc(db,'vday','_cat','days','main')}
 function applyCustom(x){
   var g=GRP[x.g];if(!g){g={g:x.g,items:[]};C.cat.push(g);GRP[x.g]=g}
   if(BYID[x.id])return;
+  if(x.a)CUA[x.g]=x.a;
   var v={id:x.id,n:x.g,t:x.t||'',u:x.u||''};g.items.push(v);BYID[x.id]=v;
 }
 async function loadCustom(){
@@ -384,6 +401,18 @@ $('cus').onclick=async function(){
   CU=next;applyCustom(x);$('cun').value='';$('cuu').value='';cuMsg(g==='문법'?'추가했어요 · 참고자료 탭에서 담아요':'추가했어요');drawPantry();
 };
 $('pn').addEventListener('click',async function(e){
+  var ab=e.target.closest('[data-ad]');
+  if(ab){ADD=ADD===ab.getAttribute('data-ad')?'':ab.getAttribute('data-ad');drawPantry();return}
+  var sb=e.target.closest('#ads');
+  if(sb){
+    var an=sb.getAttribute('data-an'),nm=$('adn').value.trim(),ul=$('adu').value.trim(),am=$('adm');
+    if(!nm){am.textContent='이름을 적어 주세요';return}
+    if(ul&&!/^https?:\/\//.test(ul)){am.textContent='링크는 https:// 로 시작해야 해요';return}
+    if(GRP[nm]){am.textContent='같은 이름의 자료가 이미 있어요';return}
+    var x={id:'cu-'+Date.now().toString(36),g:nm,t:'',u:ul,a:an},next=CU.concat([x]);
+    try{await setDoc(catRef(),{items:next,t:Date.now()})}catch(er){am.textContent='저장하지 못했습니다 · 선생님께 알려 주세요';return}
+    CU=next;applyCustom(x);ADD='';drawPantry();return;
+  }
   var d=e.target.closest('.cud');if(!d)return;e.stopPropagation();
   var id=d.getAttribute('data-id'),next=CU.filter(function(z){return z.id!==id});
   try{await setDoc(catRef(),{items:next,t:Date.now()})}catch(er){cuMsg('지우지 못했습니다',1);return}
