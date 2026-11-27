@@ -50,6 +50,7 @@ input:focus{outline:2px solid var(--main);border-color:transparent}
 .task.done .ck{border-color:var(--line);color:var(--sub)}
 .task.done .nm{text-decoration:line-through;color:#a4aea8;font-weight:500}
 .task.done .no{background:#eceeed;color:#a4aea8}
+.task .rl{display:inline-block;margin-top:4px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px}.task .rl.plus{background:#fff4dc;color:#7a4b00}.task .rl.ref{background:#e9eef9;color:#2b4a8a}.task .rl.pen{background:#fbe6ee;color:#a0305a}
 .week{display:flex;justify-content:space-between}
 .week div{flex:1;text-align:center;font-size:13px;color:var(--sub)}
 .week b{display:block;width:30px;height:30px;margin:6px auto 0;border-radius:50%;border:1.5px solid var(--line)}
@@ -147,6 +148,7 @@ function dk(k){return k==='reg2'?'reg':k}
 function off(k){return k==='reg2'?100:0}
 function wkStart(){var n=new Date(),d=new Date(n);d.setHours(18,0,0,0);d.setDate(d.getDate()-((d.getDay()+1)%7));if(d.getTime()>n.getTime())d.setDate(d.getDate()-7);return d.getTime()}
 function isD(k,i){var x=D[dk(k)]||{},t=x.done&&x.done[i+off(k)];return !!t&&t>=wkStart()}
+var RL={plus:'플러스',ref:'참고',pen:'페널티'};
 function isOpt(it){return /^dl-/.test(it.c||'')||/대화문/.test(it.n||'')||/^비단챌 문장성분/.test(it.n||'')}
 function info(k){var x=D[dk(k)]||{};var m=x.items||[];var rq=0,dn=0;m.forEach(function(it,i){if(isOpt(it))return;rq++;if(isD(k,i))dn++});return {m:m,dn:dn,rq:rq,full:rq>0&&dn===rq}}
 function refBox(){var r=(D.ref&&D.ref.items)||[];if(!r.length)return '';return '<div class="dcard"><div class="dh"><b>참고자료</b></div>'+r.map(function(it){var h=it.u?' href="'+esc(it.u)+'" target="_blank" rel="noopener"':'';return '<a class="rf"'+h+'><div><b>'+esc(it.n)+'</b><small>'+esc(it.t||'')+'</small></div><i>&rsaquo;</i></a>'}).join('')+'</div>'}
@@ -165,7 +167,7 @@ function render(){
     f.m.forEach(function(it,i){if(first<0&&!isD(k,i)&&!isOpt(it))first=i});
     var items=f.m.map(function(it,i){
       var dn=isD(k,i);
-      return '<div class="task'+(dn?' done':'')+(i===first?' now':'')+(it.u?' lk':'')+(isOpt(it)?' opt':'')+'" data-k="'+k+'" data-i="'+i+'"><div class="no">'+(i+1)+'</div><div class="tx"><div class="nm">'+esc(it.n)+'</div><div class="tg">'+esc(it.t||'')+'</div></div>'+(it.u?'<button class="ck" data-lk="1">학습링크</button>':'')+'</div>';
+      return '<div class="task'+(dn?' done':'')+(i===first?' now':'')+(it.u?' lk':'')+(isOpt(it)?' opt':'')+'" data-k="'+k+'" data-i="'+i+'"><div class="no">'+(i+1)+'</div><div class="tx"><div class="nm">'+esc(it.n)+'</div><div class="tg">'+esc(it.t||'')+'</div>'+(it.r&&RL[it.r]?'<span class="rl '+it.r+'">'+RL[it.r]+'</span>':'')+'</div>'+(it.u?'<button class="ck" data-lk="1">학습링크</button>':'')+'</div>';
     }).join('');
     return '<div class="dcard" id="dc'+k+'"><div class="dh"><b>'+TN[k]+'</b><span class="cnt">'+f.rq+'개 중 '+f.dn+'개 완료</span></div><div class="prog"><i style="width:'+(f.rq?f.dn/f.rq*100:0)+'%"></i></div>'+items+'</div>';
   }).join('')+refBox();
