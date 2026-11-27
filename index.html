@@ -149,7 +149,7 @@ function off(k){return k==='reg2'?100:0}
 function wkStart(){var n=new Date(),d=new Date(n);d.setHours(18,0,0,0);d.setDate(d.getDate()-((d.getDay()+1)%7));if(d.getTime()>n.getTime())d.setDate(d.getDate()-7);return d.getTime()}
 function isD(k,i){var x=D[dk(k)]||{},t=x.done&&x.done[i+off(k)];return !!t&&t>=wkStart()}
 var RL={plus:'플러스',ref:'참고',pen:'페널티'};
-function isOpt(it){return /^dl-/.test(it.c||'')||/대화문/.test(it.n||'')||/^비단챌 문장성분/.test(it.n||'')}
+function isOpt(it){return it.r==='plus'||it.r==='ref'||/^dl-/.test(it.c||'')||/대화문/.test(it.n||'')||/^비단챌 문장성분/.test(it.n||'')}
 function info(k){var x=D[dk(k)]||{};var m=x.items||[];var rq=0,dn=0;m.forEach(function(it,i){if(isOpt(it))return;rq++;if(isD(k,i))dn++});return {m:m,dn:dn,rq:rq,full:rq>0&&dn===rq}}
 function refBox(){var r=(D.ref&&D.ref.items)||[];if(!r.length)return '';return '<div class="dcard"><div class="dh"><b>참고자료</b></div>'+r.map(function(it){var h=it.u?' href="'+esc(it.u)+'" target="_blank" rel="noopener"':'';return '<a class="rf"'+h+'><div><b>'+esc(it.n)+'</b><small>'+esc(it.t||'')+'</small></div><i>&rsaquo;</i></a>'}).join('')+'</div>'}
 function render(){
