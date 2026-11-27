@@ -390,11 +390,11 @@ function scTok(A,k){
 }
 function scBd(A,s){
   var o=bdRec(A,'a_bd'),L=[],sc=null,bc=null,out=[],its=(DATA[s.id]&&DATA[s.id].items)||[],hb=false,hs=false,m;
-  var X=DATA[s.id],o2=offOf(),w0=wkStart(),hsd=false,tg=20,bn=0,bw=0,seen={};its.forEach(function(it,i){var c=String(it&&it.c||'');if(c.indexOf('bd-')===0)hb=true;if(c.indexOf('bs-')===0){hs=true;var tt=X&&X.done&&X.done[i+o2];if(tt&&tt>=w0)hsd=true}});
+  var X=DATA[s.id],o2=offOf(),w0=wkStart(),hsd=false,tg=0,bn=0,bw=0,seen={};its.forEach(function(it,i){var c=String(it&&it.c||'');if(c.indexOf('bd-')===0)hb=true;if(c.indexOf('bs-')===0){hs=true;var mt=/(\d+)\s*(?:문장|개)/.exec(String(it.t||''));if(mt)tg=+mt[1];var tt=X&&X.done&&X.done[i+o2];if(tt&&tt>=w0)hsd=true}});
   if(o){if(Array.isArray(o.l))L=o.l;else if(o.w)L=[{w:o.w}]}
   L.forEach(function(e){var w=String(e&&e.w||'');if(/문장성분/.test(w)){bc=w;var q=w.match(/#(\d+)-(\d+).*오답\s*(\d+)개/),kk=q?q[1]+'-'+q[2]:w;if(!seen[kk]){seen[kk]=1;if(q){bn+=(+q[2])-(+q[1])+1;bw+=+q[3]}}}else if(/10문제/.test(w))sc=w});
   if(sc){var mm=sc.match(/(\d+)\s*\/\s*10/);out.push({t:'비단챌 '+(mm?mm[1]+'/10':sc),s:''})}else if(hb||o)out.push({t:'비단챌 미완료',s:'z'});
-  if(bc){out.push({t:bn?'성분 '+Math.min(bn,tg)+'/'+tg+' 오답'+bw:'성분 완료',s:''})}else if(hsd)out.push({t:'성분 완료',s:''});else if(hs)out.push({t:'성분 0/'+tg,s:'z'});
+  if(bc){out.push({t:bn?'성분 '+(tg?Math.min(bn,tg)+'/'+tg:bn+'/'+bn)+' 오답'+bw:'성분 완료',s:''})}else if(hsd)out.push({t:'성분 완료',s:''});else if(hs)out.push({t:tg?'성분 0/'+tg:'성분 미완료',s:'z'});
   return out;
 }
 function scRd(A){
