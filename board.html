@@ -56,7 +56,7 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 22px 18
 .hw{font-size:13px;font-weight:700;color:var(--sub);margin-top:3px}
 .st.hx{border-color:#d97706;background:#fff7ec}
 .hw.x{color:#b45309}
-.st.em{background:#f6f7fa;border-style:dashed;cursor:default}
+.st.em{background:#f6f7fa;border-style:dashed;cursor:default}.stay{font-size:13px;font-weight:600;color:var(--sub);margin-top:3px}.stay .ov{color:#d93025}
 .ft{display:flex;justify-content:space-between;font-size:13px;color:var(--sub)}
 .ft b{color:var(--ink);font-size:15px}
 .empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:16px}
@@ -216,13 +216,14 @@ var auth=getAuth(app),db=getFirestore(app);
 var $=function(i){return document.getElementById(i)};
 var DAY=['일','월','화','수','목','금','토'];
 function esc(t){return String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
-var ST=[],TT={},M='',SL=0,UN=[],DATA={},HWR={},OFF=0,UH=null,BOOT=false,ATT=null,ATTERR='',UA=null,FS={},RM='';
+var ST=[],TT={},M='',SL=0,UN=[],DATA={},HWR={},OFF=0,UH=null,BOOT=false,ATT=null,ATTERR='',UA=null,FS={},FB={},RM='';
 function RD(){var d=new Date();d.setDate(d.getDate()-OFF);return d}function dayEnd(){var d=RD();d.setHours(23,59,59,999);return d.getTime()}function wkSat(){var d=RD();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+1)%7));return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function hwOf(id){var raw=HWR[id];if(!raw)return null;var o=raw;try{if(typeof raw==='string')o=JSON.parse(raw)}catch(e){return null}var c={O:0,T:0,X:0,all:0};Object.keys(o).forEach(function(k){if(!Array.isArray(o[k]))return;o[k].forEach(function(m){if(m==='O')c.O++;else if(m==='T')c.T++;else if(m==='X')c.X++;if(m==='O'||m==='T'||m==='X')c.all++})});return c}
 function wkStart(){var d=RD();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime()}
 function dayStart(){var d=RD();d.setHours(0,0,0,0);return d.getTime()}
 function isOpt(it){return /^dl-/.test(it.c||'')||/대화문/.test(it.n||'')||/^비단챌 문장성분/.test(it.n||'')}
 function hm(t){var d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function stayHtml(r){var at=r&&r.arrive;if(!at)return '';var m=Math.max(0,Math.floor((Date.now()-at)/60000));return '<span'+(m>=60?' class="ov"':'')+'>입실 '+hm(at)+' · '+m+'분</span>'}
 function isAtt(){return M==='fri'||M==='mkp'}
 function defMode(){var w=RD().getDay();return (w===5||w===6)?'fri':((w===3||w===4)?'reg2':'reg')}
 function groups(){var w=RD().getDay();if(w===1||w===3)return ['월수'];if(w===2||w===4)return ['화목'];return ['월수','화목']}
@@ -295,7 +296,7 @@ function info(id){
   });
   var ls=0;if(OFF){rows.forEach(function(r){if(r.at>=dayStart()&&r.at>ls)ls=r.at})}else if(x.t&&x.t>=dayStart())ls=x.t;return {rows:rows,rq:rq,dn:dn,last:ls};
 }
-function unsub(){UN.forEach(function(f){try{f()}catch(e){}});UN=[];Object.keys(FS).forEach(function(k){try{FS[k]()}catch(e){}});FS={};DATA={};BDT={}}
+function unsub(){UN.forEach(function(f){try{f()}catch(e){}});UN=[];Object.keys(FS).forEach(function(k){try{FS[k]()}catch(e){}});FS={};Object.keys(FB).forEach(function(k){try{FB[k]()}catch(e){}});FB={};DATA={};BDT={}}
 function watchHw(){if(UH)return;UH=onSnapshot(doc(db,'hw_w',wkSat()),function(sn){HWR=(sn.exists()&&sn.data().r)||{};render()},function(){HWR={}})}
 function watch(){
   unsub();
@@ -324,10 +325,10 @@ function syncFri(){
   if(!isAtt())return;
   var want={},byN={};ST.forEach(function(s){byN[nm(s.name)]=s});
   attList().forEach(function(a){var s=byN[nm(a.name)];if(s)want[s.id]=1});
-  Object.keys(FS).forEach(function(id){if(!want[id]){try{FS[id]()}catch(e){}delete FS[id];delete DATA[id]}});
+  Object.keys(FS).forEach(function(id){if(!want[id]){try{FS[id]()}catch(e){}delete FS[id];delete DATA[id];if(FB[id]){try{FB[id]()}catch(e){}delete FB[id];delete BDT[id]}}});
   Object.keys(want).forEach(function(id){
     if(FS[id])return;
-    FS[id]=onSnapshot(doc(db,'vday',id,'days',dkey()),function(sn){DATA[id]=sn.exists()?sn.data():null;render()},function(){DATA[id]=null;render()});
+    FS[id]=onSnapshot(doc(db,'vday',id,'days',dkey()),function(sn){DATA[id]=sn.exists()?sn.data():null;if(DATA[id]&&!FB[id]){var q=ST.filter(function(z){return z.id===id})[0];if(q)FB[id]=onSnapshot(doc(db,'vboard',isoToday()+'|'+q.name),function(b){BDT[id]=bdParse(b);render()},function(){BDT[id]={};render()})}render()},function(){DATA[id]=null;render()});
   });
 }
 function watchAtt(){
@@ -349,13 +350,13 @@ function renderFri(){
   g.style.gridTemplateColumns='repeat('+c+',1fr)';g.style.gridTemplateRows='repeat('+r+',1fr)';
   g.innerHTML=L.map(function(a){
     var at=a.rec.arrive?hm(a.rec.arrive):'',rm=a.rec.teacher?(a.rec.teacher+'쌤'):'';
-    var sub=[a.s?a.s.cls.replace(/^[MT]/,''):'',at,rm].filter(Boolean).join(' \u00B7 ');
+    var sub=[a.s?a.s.cls.replace(/^[MT]/,''):'',rm].filter(Boolean).join(' \u00B7 ');
     var f=a.s&&DATA[a.s.id]?info(a.s.id):null;
-    if(!f){return '<div class="st em"><div><div class="n">'+esc(a.name)+'</div><div class="tg">'+esc(sub)+'</div><div class="hw">'+(a.s&&DATA[a.s.id]===undefined?'기록 불러오는 중':'EM 기록')+'</div></div></div>'}
+    if(!f){return '<div class="st em"><div><div class="n">'+esc(a.name)+'</div><div class="tg">'+esc(sub)+'</div><div class="stay">'+stayHtml(a.rec)+'</div></div></div>'}
     var segs='',h=hwOf(a.s.id),ht='주간 숙제 기록 없음',hx=false;
     if(h&&h.all){var p=[];if(h.O)p.push('O '+h.O);if(h.T)p.push('\u25B3 '+h.T);if(h.X){p.push('X '+h.X);hx=true}ht='주간 숙제 '+p.join(' \u00B7 ')}
     f.rows.forEach(function(x){if(x.o)return;segs+='<i class="'+(x.d?'d':'')+'"></i>'});
-    return '<button class="st'+(f.rq&&f.dn===f.rq?' full':'')+(hx?' hx':'')+'" data-id="'+a.s.id+'"><div><div class="n">'+esc(a.name)+'</div><div class="tg">'+esc(sub)+'</div><div class="hw'+(hx?' x':'')+'">'+ht+'</div></div><div><div class="seg">'+segs+'</div><div class="ft"><b>'+f.dn+' / '+f.rq+'</b><span>'+(f.last?hm(f.last):'')+'</span></div></div></button>';
+    return '<button class="st'+(f.rq&&f.dn===f.rq?' full':'')+(hx?' hx':'')+'" data-id="'+a.s.id+'"><div><div class="n">'+esc(a.name)+'</div><div class="tg">'+esc(sub)+'</div><div class="stay">'+stayHtml(a.rec)+'</div>'+scLine(a.s)+'<div class="hw'+(hx?' x':'')+'">'+ht+'</div></div><div><div class="seg">'+segs+'</div><div class="ft"><b>'+f.dn+' / '+f.rq+'</b><span>'+(f.last?hm(f.last):'')+'</span></div></div></button>';
   }).join('');
 }
 function WD(){var s='',w,c=RD().getDay();for(w=1;w<=6;w++)s+='<button class="pill'+(w===c?' on':'')+'" data-dw="'+w+'">'+DAY[w]+'</button>';return s}
@@ -652,7 +653,7 @@ document.querySelector('nav').onclick=function(e){
 };
 $('p-cls').onclick=function(e){var b=e.target.closest('.pill');if(b)setCls(b.getAttribute('data-t'))};
 (function(){var h=(location.hash||'').replace('#','');if(h==='room'||h==='hw'||h==='info'||h==='cls')openM(h)})();
-function tick(){var d=new Date();$('clk').textContent=(d.getMonth()+1)+'/'+d.getDate()+'('+DAY[d.getDay()]+') '+hm(d.getTime())}
+function tick(){var d=new Date();$('clk').textContent=(d.getMonth()+1)+'/'+d.getDate()+'('+DAY[d.getDay()]+') '+hm(d.getTime());if(BOOT&&isAtt())try{renderFri()}catch(e){}}
 tick();setInterval(tick,30000);
 async function boot(){
   var s=await getDoc(doc(db,'hw_c','master'));var d=JSON.parse(s.data().j);
