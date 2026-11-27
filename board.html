@@ -56,7 +56,7 @@ main{flex:1;min-height:0;display:flex;flex-direction:column;padding:14px 22px 18
 .hw{font-size:13px;font-weight:700;color:var(--sub);margin-top:3px}
 .st.hx{border-color:#d97706;background:#fff7ec}
 .hw.x{color:#b45309}
-.st.em{background:#f6f7fa;border-style:dashed;cursor:default}.stay{font-size:13px;font-weight:600;color:var(--sub);margin-top:3px}.stay .stlate{color:#d93025}
+.st.em{background:#f6f7fa;border-style:dashed;cursor:default}.stay{font-size:13px;font-weight:600;color:var(--sub);margin-top:3px}.stay .stlate{color:#d93025}.st.ph{background:transparent;border:1px dashed var(--ln);cursor:default;pointer-events:none;min-height:0}
 .ft{display:flex;justify-content:space-between;font-size:13px;color:var(--sub)}
 .ft b{color:var(--ink);font-size:15px}
 .empty{flex:1;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:16px}
@@ -344,9 +344,9 @@ function renderFri(){
   if(ATT===null){g.style.display='flex';g.innerHTML='<div class="empty">'+(ATTERR||'출석부를 불러오는 중입니다')+'</div>';return}
   L=L.map(function(a){return {name:a.name,rec:a.rec,s:byN[nm(a.name)]||null}}).filter(function(a){return !RM||a.rec.teacher===RM});
   L.sort(function(a,b){return a.name.localeCompare(b.name,'ko')});
-  if(!L.length){g.style.display='flex';g.innerHTML='<div class="empty">아직 도착한 학생이 없습니다</div>';return}
+  
   g.style.display='grid';
-  var n=L.length,c=n<=9?3:(n<=15?5:6),r=Math.ceil(n/c);
+  var n=L.length,c=window.innerWidth<700?3:5,slots=Math.max(15,Math.ceil(n/c)*c),r=slots/c,ph='';for(var pi=n;pi<slots;pi++)ph+='<div class="st ph"></div>';
   g.style.gridTemplateColumns='repeat('+c+',1fr)';g.style.gridTemplateRows='repeat('+r+',1fr)';
   g.innerHTML=L.map(function(a){
     var at=a.rec.arrive?hm(a.rec.arrive):'',rm=a.rec.teacher?(a.rec.teacher+'쌤'):'';
@@ -357,7 +357,7 @@ function renderFri(){
     if(h&&h.all){var p=[];if(h.O)p.push('O '+h.O);if(h.T)p.push('\u25B3 '+h.T);if(h.X){p.push('X '+h.X);hx=true}ht='주간 숙제 '+p.join(' \u00B7 ')}
     f.rows.forEach(function(x){if(x.o)return;segs+='<i class="'+(x.d?'d':'')+'"></i>'});
     return '<button class="st'+(f.rq&&f.dn===f.rq?' full':'')+(hx?' hx':'')+'" data-id="'+a.s.id+'"><div><div class="n">'+esc(a.name)+'</div><div class="tg">'+esc(sub)+'</div><div class="stay">'+stayHtml(a.rec)+'</div>'+scLine(a.s)+'<div class="hw'+(hx?' x':'')+'">'+ht+'</div></div><div><div class="seg">'+segs+'</div><div class="ft"><b>'+f.dn+' / '+f.rq+'</b><span>'+(f.last?hm(f.last):'')+'</span></div></div></button>';
-  }).join('');
+  }).join('')+ph;
 }
 function WD(){var s='',w,c=RD().getDay();for(w=1;w<=6;w++)s+='<button class="pill'+(w===c?' on':'')+'" data-dw="'+w+'">'+DAY[w]+'</button>';return s}
 function bar(){
