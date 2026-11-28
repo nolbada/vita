@@ -563,10 +563,17 @@ $('ical').onclick=function(e){
   }
   var c=e.target.closest('.ce,.pn');if(!c)return;
   var ev=CAL[+c.getAttribute('data-i')];if(!ev)return;var kk=CK[ev.k]||CK.etc;
-  $('ov').innerHTML='<div class="pop"><h2>'+esc(ev.n)+'</h2><div class="tg">'+esc(kk[0])+'  ·  '+esc(rng(ev))+'</div><div class="ef"><input type="text" id="en" value="'+esc(ev.n)+'"><select id="ek">'+Object.keys(CK).map(function(k){return '<option value="'+k+'"'+(k===ev.k?' selected':'')+'>'+CK[k][0]+'</option>'}).join('')+'</select><input type="date" id="es" value="'+esc(ev.s)+'"><input type="date" id="ex" value="'+esc(ev.e||ev.s)+'"><label class="cpl"><input type="checkbox" id="ep"'+(ev.p?' checked':'')+'>날짜 핀</label><select id="eb">'+bopts(ev.b||'')+'</select></div><div class="cerr" id="eerr"></div><button class="dl" data-sv="'+esc(ev.id)+'">저장</button> <button class="dl dd" data-del="'+esc(ev.id)+'">이 일정 삭제</button></div>';
+  $('ov').innerHTML='<div class="pop"><h2>'+esc(ev.n)+'</h2><div class="tg">'+esc(kk[0])+'  ·  '+esc(rng(ev))+'</div><div class="ef"><input type="text" id="en" value="'+esc(ev.n)+'"><select id="ek">'+Object.keys(CK).map(function(k){return '<option value="'+k+'"'+(k===ev.k?' selected':'')+'>'+CK[k][0]+'</option>'}).join('')+'</select><input type="date" id="es" value="'+esc(ev.s)+'"><input type="date" id="ex" value="'+esc(ev.e||ev.s)+'"><label class="cpl"'+(ev.p?'':' style="display:none"')+'><input type="checkbox" id="ep"'+(ev.p?' checked':'')+'>날짜 핀</label><select id="eb"'+(ev.p?'':' style="display:none"')+'>'+bopts(ev.b||'')+'</select></div><div class="cerr" id="eerr"></div>'+(ev.p?'':'<div class="ef" style="margin-top:10px"><div class="tg">핀 지정 (시험 날짜)</div><input type="text" id="pn" placeholder="내용 (예: 금천고1)"><input type="date" id="pd"><button class="dl" data-pin="'+esc(ev.id)+'">핀 추가</button></div><div class="cerr" id="perr"></div>')+'<button class="dl" data-sv="'+esc(ev.id)+'">저장</button> <button class="dl dd" data-del="'+esc(ev.id)+'">이 일정 삭제</button></div>';
   $('ov').classList.remove('hide');
 };
 $('ov').addEventListener('click',function(e){
+  var pb=e.target.closest('[data-pin]');
+  if(pb){var bid2=pb.getAttribute('data-pin'),bar=CAL.filter(function(q){return q.id===bid2})[0],pn=($('pn').value||'').trim(),pd=$('pd').value;
+    if(!bar)return;
+    if(!pn||!pd){$('perr').textContent='내용과 핀 날짜를 넣어 주세요';return}
+    if(pd<bar.s||pd>(bar.e||bar.s)){$('perr').textContent='핀 날짜가 이 기간('+rng(bar)+') 밖입니다';return}
+    $('ov').classList.add('hide');
+    saveCal(function(a){a.push({id:Date.now().toString(36)+'p',n:pn,k:bar.k,s:pd,e:pd,p:1,b:bid2});return a});return}
   var sv=e.target.closest('[data-sv]');
   if(sv){var id2=sv.getAttribute('data-sv'),n2=($('en').value||'').trim(),k2=$('ek').value,s2=$('es').value,x2=$('ex').value||s2,p2=$('ep').checked,b2=$('eb').value;var wasP=false;try{wasP=!!CAL.filter(function(q){return q.id===id2})[0].p}catch(e){}
     var orig=CAL.filter(function(q){return q.id===id2})[0]||{};
