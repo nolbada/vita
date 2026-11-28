@@ -569,7 +569,12 @@ $('ical').onclick=function(e){
 $('ov').addEventListener('click',function(e){
   var sv=e.target.closest('[data-sv]');
   if(sv){var id2=sv.getAttribute('data-sv'),n2=($('en').value||'').trim(),k2=$('ek').value,s2=$('es').value,x2=$('ex').value||s2,p2=$('ep').checked,b2=$('eb').value;var wasP=false;try{wasP=!!CAL.filter(function(q){return q.id===id2})[0].p}catch(e){}
-    if(p2&&!wasP&&x2&&x2!==s2){$('eerr').textContent='기간 일정은 핀으로 바꿀 수 없습니다. 추가 칸에서 핀 날짜를 넣어 주세요';return}
+    var orig=CAL.filter(function(q){return q.id===id2})[0]||{};
+    if(p2&&!wasP&&orig.e&&orig.e!==orig.s){
+      if(!s2){$('eerr').textContent='핀 날짜를 시작일 칸에 넣어 주세요';return}
+      $('ov').classList.add('hide');
+      saveCal(function(a){a.push({id:Date.now().toString(36)+'p',n:n2||orig.n,k:k2,s:s2,e:s2,p:1,b:id2});return a});return;
+    }
     if(p2)x2=s2;
     if(!n2||!s2){$('eerr').textContent='이름과 시작일을 넣어 주세요';return}
     if(x2<s2){$('eerr').textContent='끝나는 날이 시작일보다 앞입니다';return}
