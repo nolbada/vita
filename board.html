@@ -534,7 +534,7 @@ function renderCal(){
     h+='</div>';
   }
   h+='<div class="clg">'+Object.keys(CK).map(function(k){return '<span><i style="background:'+CK[k][1]+'"></i>'+CK[k][0]+'</span>'}).join('')+'</div>';
-  h+='<div class="cf"><input type="text" id="cn" placeholder="일정 이름 (예: 청주고 기말)"><select id="ck">'+Object.keys(CK).map(function(k){return '<option value="'+k+'">'+CK[k][0]+'</option>'}).join('')+'</select><input type="date" id="cs"><input type="date" id="cx"><label class="cpl"><input type="checkbox" id="cp">날짜 핀</label><select id="cb" title="핀을 얹을 막대">'+bopts('')+'</select><button id="cadd">추가</button></div><div class="cerr" id="cerr">'+esc(CALE)+'</div>';
+  h+='<div class="cf"><input type="text" id="cn" placeholder="일정 이름 (예: 청주고 기말)"><select id="ck">'+Object.keys(CK).map(function(k){return '<option value="'+k+'">'+CK[k][0]+'</option>'}).join('')+'</select><input type="date" id="cs"><input type="date" id="cx"><label class="cpl"><input type="checkbox" id="cp">날짜 핀</label><label class="cpl">핀 날짜 <input type="date" id="cpd"></label><select id="cb" title="핀을 얹을 막대">'+bopts('')+'</select><button id="cadd">추가</button></div><div class="cerr" id="cerr">'+esc(CALE)+'</div>';
   el.innerHTML=h;
 }
 async function saveCal(fn){
@@ -550,8 +550,14 @@ $('ical').onclick=function(e){
   var b=e.target.closest('[data-cn]');
   if(b){var v=+b.getAttribute('data-cn');if(v===0){var n=new Date();CY=n.getFullYear();CM=n.getMonth()}else{CM+=v;if(CM<0){CM=11;CY--}if(CM>11){CM=0;CY++}}renderCal();return}
   if(e.target.id==='cadd'){
-    var n=($('cn').value||'').trim(),k=$('ck').value,s=$('cs').value,x=$('cx').value||s,p=$('cp').checked;if(p)x=s;
-    if(!n||!s){CALE='이름과 시작일을 넣어 주세요';$('cerr').textContent=CALE;return}
+    var n=($('cn').value||'').trim(),k=$('ck').value,s=$('cs').value,x=$('cx').value||s,p=$('cp').checked,pdv=$('cpd').value;
+    if(p&&pdv&&s){
+      if(x<s){CALE='끝나는 날이 시작일보다 앞입니다';$('cerr').textContent=CALE;return}
+      var bid=Date.now().toString(36),bv0=$('cb').value;
+      saveCal(function(a){a.push({id:bid,n:n,k:k,s:s,e:x});a.push({id:bid+'p',n:n,k:k,s:pdv,e:pdv,p:1,b:bid});return a});return;
+    }
+    if(p){s=pdv||s;x=s}
+    if(!n||!s){CALE=p?'이름과 핀 날짜를 넣어 주세요':'이름과 시작일을 넣어 주세요';$('cerr').textContent=CALE;return}
     if(x<s){CALE='끝나는 날이 시작일보다 앞입니다';$('cerr').textContent=CALE;return}
     var bv=$('cb').value;saveCal(function(a){var o={id:Date.now().toString(36),n:n,k:k,s:s,e:x};if(p){o.p=1;if(bv)o.b=bv}a.push(o);return a});return;
   }
@@ -562,7 +568,9 @@ $('ical').onclick=function(e){
 };
 $('ov').addEventListener('click',function(e){
   var sv=e.target.closest('[data-sv]');
-  if(sv){var id2=sv.getAttribute('data-sv'),n2=($('en').value||'').trim(),k2=$('ek').value,s2=$('es').value,x2=$('ex').value||s2,p2=$('ep').checked,b2=$('eb').value;if(p2)x2=s2;
+  if(sv){var id2=sv.getAttribute('data-sv'),n2=($('en').value||'').trim(),k2=$('ek').value,s2=$('es').value,x2=$('ex').value||s2,p2=$('ep').checked,b2=$('eb').value;var wasP=false;try{wasP=!!CAL.filter(function(q){return q.id===id2})[0].p}catch(e){}
+    if(p2&&!wasP&&x2&&x2!==s2){$('eerr').textContent='기간 일정은 핀으로 바꿀 수 없습니다. 추가 칸에서 핀 날짜를 넣어 주세요';return}
+    if(p2)x2=s2;
     if(!n2||!s2){$('eerr').textContent='이름과 시작일을 넣어 주세요';return}
     if(x2<s2){$('eerr').textContent='끝나는 날이 시작일보다 앞입니다';return}
     $('ov').classList.add('hide');saveCal(function(a){return a.map(function(x){if(x.id!==id2)return x;var o={id:x.id,n:n2,k:k2,s:s2,e:x2};if(p2){o.p=1;if(b2&&b2!==x.id)o.b=b2}return o})});return}
